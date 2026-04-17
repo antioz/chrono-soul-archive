@@ -258,6 +258,28 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
     return;
   }
 
+  // Verify city exists via Nominatim (OpenStreetMap)
+  const submitBtn = event.target.querySelector("button[type=submit]");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Проверяем город...";
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&format=json&limit=1`,
+      { headers: { "Accept-Language": "ru" } }
+    );
+    const data = await res.json();
+    if (!data.length) {
+      alert("Город не найден. Пожалуйста, введи реальный город.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Узнать прошлую жизнь";
+      return;
+    }
+  } catch {
+    // При ошибке сети пропускаем проверку
+  }
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Узнать прошлую жизнь";
+
   state.profile = { birthDate, city, name };
   state.lives = [];
   state.shareUnlocked = false;
