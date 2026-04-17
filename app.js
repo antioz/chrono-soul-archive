@@ -149,6 +149,18 @@ async function apiSendInvoice(lifeNumber) {
 
 // ── UI helpers ──────────────────────────────────────
 
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add("toast-show"));
+  setTimeout(() => {
+    t.classList.remove("toast-show");
+    setTimeout(() => t.remove(), 300);
+  }, 2800);
+}
+
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
@@ -270,7 +282,8 @@ function renderActions() {
   if (nextLife <= maxUnlocked) {
     html += `<button class="btn btn-primary" id="open-next">Открыть жизнь №${nextLife}</button>`;
   } else if (nextLife === 3 && !state.shareUnlocked) {
-    html += `<button class="btn btn-primary" id="share-btn">Открыть бесплатно — поделиться</button>`;
+    const active = state.sharedOnce;
+    html += `<button class="btn btn-primary${active ? "" : " btn-disabled"}" id="share-btn">Открыть бесплатно — поделиться</button>`;
   } else if (nextLife === 4 && !state.channelUnlocked) {
     html += `<button class="btn btn-primary" id="channel-btn">Открыть бесплатно — подписаться на канал</button>`;
   } else {
@@ -281,7 +294,17 @@ function renderActions() {
   actionsEl.innerHTML = html;
 
   document.getElementById("open-next")?.addEventListener("click", () => openNextLife());
-  document.getElementById("share-btn")?.addEventListener("click", () => showShareModal());
+  document.getElementById("share-btn")?.addEventListener("click", async () => {
+    if (!state.sharedOnce) {
+      showToast("Сначала поделись — нажми ↗ Поделиться на карточке");
+      return;
+    }
+    state.shareUnlocked = true;
+    saveState();
+    await apiUnlockShare();
+    track("share_confirmed");
+    openNextLife();
+  });
   document.getElementById("channel-btn")?.addEventListener("click", () => {
     const channelUrl = "https://t.me/webthreesome";
     if (tg?.openTelegramLink) tg.openTelegramLink(channelUrl);
@@ -341,7 +364,7 @@ function renderResults() {
   resultsListEl.innerHTML = renderNavigation() + renderLifeCard(state.lives[viewingLifeIndex]);
 
   document.getElementById(`share-life-btn-${state.lives[viewingLifeIndex]?.lifeNumber}`)
-    ?.addEventListener("click", () => shareResult());
+    ?.addEventListener("click", () => showShareModal());
 
   document.getElementById("nav-prev")?.addEventListener("click", () => {
     viewingLifeIndex = Math.max(0, viewingLifeIndex - 1);
@@ -419,12 +442,11 @@ function hideShareModal() { shareModal.classList.add("hidden"); }
 
 modalShareConfirm?.addEventListener("click", async () => {
   hideShareModal();
-  state.shareUnlocked = true;
+  state.sharedOnce = true;
   saveState();
-  await apiUnlockShare();
-  track("share_confirmed");
   shareResult();
-  await openNextLife();
+  showToast("Поделился! Теперь нажми «Открыть бесплатно»");
+  renderResults();
 });
 
 modalShareCancel?.addEventListener("click", hideShareModal);
