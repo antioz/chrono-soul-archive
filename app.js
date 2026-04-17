@@ -188,9 +188,18 @@ function ensureLivesGenerated(targetLife) {
 
 // ── Render ──────────────────────────────────────────
 
+function lifeImageStyle(era) {
+  if (!era || era.includes("XX")) return "classic studio portrait photograph, black and white, 1940s, formal, sharp focus";
+  if (era.includes("XIX") || era.includes("Викториан") || era.includes("Индустриал")) return "daguerreotype portrait, sepia tone, 1880s vintage photograph, grainy, formal pose";
+  if (era.includes("XVIII") || era.includes("Просвещ") || era.includes("барок")) return "oil portrait painting, baroque style, candlelight, chiaroscuro, 18th century";
+  if (era.includes("Ренессанс") || era.includes("Новое время")) return "Renaissance oil portrait painting, detailed, warm tones, classical composition";
+  return "medieval illuminated manuscript style portrait, tempera painting, flat perspective, gold accents";
+}
+
 function lifeImageUrl(life) {
-  const prompt = encodeURIComponent(`${life.role}, ${life.era}, ${life.region}, historical portrait, painterly, cinematic lighting, detailed`);
-  return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=300&nologo=true&seed=${life.lifeNumber}`;
+  const style = lifeImageStyle(life.era);
+  const prompt = encodeURIComponent(`${life.role} in ${life.region}, ${style}, no text, no watermark`);
+  return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=320&nologo=true&seed=${life.lifeNumber * 31 + 7}`;
 }
 
 function renderLifeCard(life) {
@@ -214,7 +223,7 @@ function renderLifeCard(life) {
         <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
       <p class="life-story">${escapeHtml(story)}</p>
-      <button class="share-life-btn" onclick="shareLifeCard()">↗ Поделиться</button>
+      <button class="share-life-btn" id="share-life-btn-${life.lifeNumber}">↗ Поделиться</button>
     </article>
   `;
 }
@@ -314,6 +323,9 @@ function renderResults() {
 
   resultsListEl.innerHTML = renderNavigation() + renderLifeCard(state.lives[viewingLifeIndex]);
 
+  document.getElementById(`share-life-btn-${state.lives[viewingLifeIndex]?.lifeNumber}`)
+    ?.addEventListener("click", () => shareResult());
+
   document.getElementById("nav-prev")?.addEventListener("click", () => {
     viewingLifeIndex = Math.max(0, viewingLifeIndex - 1);
     renderResults();
@@ -335,12 +347,25 @@ async function openNextLife() {
   resultsSectionEl.classList.add("hidden");
   setLoading(true);
 
-  const steps = [
-    "Анализируем дату рождения...",
-    "Сканируем архивы эпох...",
-    "Находим точку пересечения судеб...",
-    getCalculationMessage(nextLifeNumber)
+  const funnySteps = [
+    "Запрашиваем медиума...",
+    "Связываемся с колдуном...",
+    "Отправляем запрос в космос...",
+    "Ждём ответа от Вселенной...",
+    "Сверяемся с картами Таро...",
+    "Активируем третий глаз...",
+    "Консультируемся с духами предков...",
+    "Расшифровываем послание звёзд...",
+    "Проверяем ваш астральный след...",
+    "Ченнелинг завершён, обрабатываем данные...",
+    "Пробуждаем коллективное бессознательное...",
+    "Синхронизируем чакры с архивом...",
   ];
+  const pickFunny = (i) => funnySteps[(nextLifeNumber * 7 + i) % funnySteps.length];
+
+  const steps = nextLifeNumber >= 3
+    ? [pickFunny(0), pickFunny(1), pickFunny(2), getCalculationMessage(nextLifeNumber)]
+    : ["Анализируем дату рождения...", "Сканируем архивы эпох...", "Находим точку пересечения судеб...", getCalculationMessage(nextLifeNumber)];
   for (const step of steps) {
     statusTextEl.classList.remove("status-text-fade");
     void statusTextEl.offsetWidth;
