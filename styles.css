@@ -184,6 +184,16 @@ body {
   font-size: 13px;
   color: #94a3b8;
   line-height: 1.5;
+  transition: opacity 0.2s;
+}
+
+.status-text-fade {
+  animation: fadeInText 0.4s ease;
+}
+
+@keyframes fadeInText {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Life cards ───────────────────────────────────── */

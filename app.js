@@ -296,8 +296,20 @@ async function openNextLife() {
 
   resultsSectionEl.classList.add("hidden");
   setLoading(true);
-  statusTextEl.textContent = getCalculationMessage(nextLifeNumber);
-  await new Promise(resolve => setTimeout(resolve, 3000));
+
+  const steps = [
+    "Анализируем дату рождения...",
+    "Сканируем архивы эпох...",
+    "Находим точку пересечения судеб...",
+    getCalculationMessage(nextLifeNumber)
+  ];
+  for (const step of steps) {
+    statusTextEl.classList.remove("status-text-fade");
+    void statusTextEl.offsetWidth;
+    statusTextEl.classList.add("status-text-fade");
+    statusTextEl.textContent = step;
+    await new Promise(resolve => setTimeout(resolve, 900));
+  }
   ensureLivesGenerated(nextLifeNumber);
   saveState();
   track("life_opened", { lifeNumber: nextLifeNumber });
