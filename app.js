@@ -71,6 +71,16 @@ function loadState() {
   }
 }
 
+// ── Analytics ───────────────────────────────────────
+
+function track(event, payload) {
+  fetch(`${API}/api/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: tgUserId, event, payload })
+  }).catch(() => {});
+}
+
 // ── Backend API ─────────────────────────────────────
 
 async function apiLoadUser() {
@@ -221,10 +231,12 @@ function renderActions() {
   document.getElementById("pay-stars-btn")?.addEventListener("click", async () => {
     const nextLifeNumber = state.lives.length + 1;
     if (tgUserId) {
+      track("payment_initiated", { lifeNumber: nextLifeNumber });
       const result = await apiSendInvoice(nextLifeNumber);
       if (result?.link && tg?.openInvoice) {
         tg.openInvoice(result.link, (status) => {
           if (status === "paid") {
+            track("payment_completed", { lifeNumber: nextLifeNumber });
             state.paidLives += 1;
             saveState();
             openNextLife();
@@ -275,6 +287,7 @@ async function openNextLife() {
   await new Promise(resolve => setTimeout(resolve, 3000));
   ensureLivesGenerated(nextLifeNumber);
   saveState();
+  track("life_opened", { lifeNumber: nextLifeNumber });
   viewingLifeIndex = state.lives.length - 1;
   setLoading(false);
   renderResults();
@@ -290,6 +303,7 @@ modalShareConfirm?.addEventListener("click", async () => {
   state.shareUnlocked = true;
   saveState();
   await apiUnlockShare();
+  track("share_confirmed");
   shareResult();
   await openNextLife();
 });
@@ -395,6 +409,7 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
   state.shareUnlocked = false;
   state.paidLives = 0;
   saveState();
+  track("form_submit");
 
   formSectionEl.classList.add("hidden");
   resultsSectionEl.classList.remove("hidden");
@@ -405,6 +420,7 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
 // Load local state, then sync from backend if in Telegram
 loadState();
 if (tgUserId) {
+  track("app_open");
   apiLoadUser().then(() => initFlow());
 } else {
   initFlow();
