@@ -198,7 +198,7 @@ body {
 .life-facts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px 16px;
   margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #1e2d47;

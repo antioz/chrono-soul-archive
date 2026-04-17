@@ -174,7 +174,8 @@ function renderLifeCard(life) {
       <div class="life-facts">
         <div class="life-fact"><div class="life-field-label">Годы жизни</div><div class="life-field-value">${escapeHtml(life.years)}</div></div>
         <div class="life-fact"><div class="life-field-label">Прожито лет</div><div class="life-field-value">${escapeHtml(String(life.lifeSpan))}</div></div>
-        <div class="life-fact"><div class="life-field-label">Эпоха · регион</div><div class="life-field-value">${escapeHtml(life.era)}, ${escapeHtml(life.region)}</div></div>
+        <div class="life-fact life-fact-wide"><div class="life-field-label">Эпоха</div><div class="life-field-value">${escapeHtml(life.era)}</div></div>
+        <div class="life-fact life-fact-wide"><div class="life-field-label">Регион</div><div class="life-field-value">${escapeHtml(life.region)}</div></div>
         <div class="life-fact life-fact-wide"><div class="life-field-label">Профессия</div><div class="life-field-value">${escapeHtml(life.role)}</div></div>
       </div>
       <p class="life-story">${escapeHtml(story)}</p>
