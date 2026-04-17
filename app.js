@@ -2,6 +2,7 @@ import { CALCULATION_MESSAGES, LONG_DISCLAIMER_TEXT } from "./data/constants.js"
 import { generateLife } from "./data/generator.js";
 
 const STORAGE_KEY = "chronoSoulArchiveStateV1";
+const API = "https://chrono-soul-backend-production.up.railway.app";
 
 const state = {
   disclaimerAccepted: false,
@@ -18,6 +19,9 @@ if (tg) {
   tg.ready();
   tg.expand();
 }
+
+// Telegram user ID if available
+const tgUserId = tg?.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : null;
 
 const disclaimerEl        = document.getElementById("disclaimer");
 const formSectionEl       = document.getElementById("form-section");
@@ -40,6 +44,8 @@ if (new URLSearchParams(window.location.search).get("reset") === "1") {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+// ── State persistence ───────────────────────────────
+
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -54,13 +60,69 @@ function loadState() {
   }
 }
 
+// ── Backend API ─────────────────────────────────────
+
+async function apiLoadUser() {
+  if (!tgUserId) return;
+  try {
+    const res = await fetch(`${API}/api/user/${tgUserId}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    state.shareUnlocked = data.shareUnlocked;
+    state.paidLives = data.paidLives;
+    if (data.lives?.length) {
+      state.lives = data.lives;
+    }
+  } catch (e) {
+    console.error("apiLoadUser error", e);
+  }
+}
+
+async function apiSaveLife(life) {
+  if (!tgUserId) return;
+  try {
+    await fetch(`${API}/api/user/${tgUserId}/life`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lifeNumber: life.lifeNumber, payload: life })
+    });
+  } catch (e) {
+    console.error("apiSaveLife error", e);
+  }
+}
+
+async function apiUnlockShare() {
+  if (!tgUserId) return;
+  try {
+    await fetch(`${API}/api/user/${tgUserId}/share`, { method: "POST" });
+  } catch (e) {
+    console.error("apiUnlockShare error", e);
+  }
+}
+
+async function apiSendInvoice(lifeNumber) {
+  if (!tgUserId) return false;
+  try {
+    const res = await fetch(`${API}/api/user/${tgUserId}/invoice`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lifeNumber })
+    });
+    return res.ok;
+  } catch (e) {
+    console.error("apiSendInvoice error", e);
+    return false;
+  }
+}
+
+// ── UI helpers ──────────────────────────────────────
+
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Capitalizes first letter after sentence-ending punctuation and at string start
 function capitalizeSentences(text) {
   return text.replace(/(^|[.!?]\s+)([а-яёa-z])/gu, (_, before, char) => before + char.toUpperCase());
 }
@@ -85,16 +147,19 @@ function currentMaxUnlockedLife() {
 function ensureLivesGenerated(targetLife) {
   if (!state.profile) return;
   while (state.lives.length < targetLife) {
-    state.lives.push(generateLife(state.profile, state.lives.length + 1));
+    const life = generateLife(state.profile, state.lives.length + 1);
+    state.lives.push(life);
+    apiSaveLife(life);
   }
 }
 
+// ── Render ──────────────────────────────────────────
+
 function renderLifeCard(life) {
-  const title = life.name;
   const story = capitalizeSentences(life.story);
   return `
     <article class="life-card">
-      <h3 class="life-card-title">${title}</h3>
+      <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
       <div class="life-facts">
         <div class="life-fact"><div class="life-field-label">Имя</div><div class="life-field-value">${escapeHtml(life.name)}</div></div>
         <div class="life-fact"><div class="life-field-label">Годы жизни</div><div class="life-field-value">${escapeHtml(life.years)}</div></div>
@@ -134,7 +199,7 @@ function renderActions() {
   } else if (nextLife === 3 && !state.shareUnlocked) {
     html += `<button class="btn btn-primary" id="share-btn">Предыдущая жизнь</button>`;
   } else {
-    html += `<button class="btn btn-primary" id="pay-stars-btn">Открыть жизнь №${nextLife} за Stars (демо)</button>`;
+    html += `<button class="btn btn-primary" id="pay-stars-btn">Открыть жизнь №${nextLife} за Stars ✦</button>`;
   }
 
   html += `</div>`;
@@ -143,9 +208,17 @@ function renderActions() {
   document.getElementById("open-next")?.addEventListener("click", () => openNextLife());
   document.getElementById("share-btn")?.addEventListener("click", () => showShareModal());
   document.getElementById("pay-stars-btn")?.addEventListener("click", async () => {
-    state.paidLives += 1;
-    saveState();
-    await openNextLife();
+    const nextLifeNumber = state.lives.length + 1;
+    if (tgUserId) {
+      // Real Stars payment via backend
+      await apiSendInvoice(nextLifeNumber);
+      // After payment, bot sends invoice to user in Telegram — listen for successful_payment via bot
+    } else {
+      // Fallback demo (browser testing)
+      state.paidLives += 1;
+      saveState();
+      await openNextLife();
+    }
   });
 }
 
@@ -167,6 +240,8 @@ function renderResults() {
   renderActions();
 }
 
+// ── Life flow ───────────────────────────────────────
+
 async function openNextLife() {
   const nextLifeNumber = state.lives.length + 1;
   if (nextLifeNumber > currentMaxUnlockedLife()) return;
@@ -182,18 +257,16 @@ async function openNextLife() {
   renderResults();
 }
 
-function showShareModal() {
-  shareModal.classList.remove("hidden");
-}
+// ── Share modal ─────────────────────────────────────
 
-function hideShareModal() {
-  shareModal.classList.add("hidden");
-}
+function showShareModal() { shareModal.classList.remove("hidden"); }
+function hideShareModal() { shareModal.classList.add("hidden"); }
 
 modalShareConfirm?.addEventListener("click", async () => {
   hideShareModal();
   state.shareUnlocked = true;
   saveState();
+  await apiUnlockShare();
   shareResult();
   await openNextLife();
 });
@@ -210,6 +283,8 @@ function shareResult() {
     window.open(shareUrl, "_blank", "noopener,noreferrer");
   }
 }
+
+// ── Init ────────────────────────────────────────────
 
 function initFlow() {
   if (!disclaimerEl) state.disclaimerAccepted = true;
@@ -258,7 +333,6 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
     return;
   }
 
-  // Verify city exists via Nominatim (OpenStreetMap)
   const submitBtn = event.target.querySelector("button[type=submit]");
   submitBtn.disabled = true;
   submitBtn.textContent = "Проверяем город...";
@@ -292,5 +366,10 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
   await openNextLife();
 });
 
+// Load local state, then sync from backend if in Telegram
 loadState();
-initFlow();
+if (tgUserId) {
+  apiLoadUser().then(() => initFlow());
+} else {
+  initFlow();
+}
