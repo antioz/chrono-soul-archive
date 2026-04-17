@@ -183,18 +183,23 @@ function lifeImageUrl(life) {
 
 function renderLifeCard(life) {
   const story = capitalizeSentences(life.story);
+  const imgUrl = lifeImageUrl(life);
   return `
     <article class="life-card">
-      <div class="life-card-image-wrap">
-        <img class="life-card-image" src="${lifeImageUrl(life)}" alt="${escapeHtml(life.era)}" loading="lazy" />
+      <div class="life-card-image-wrap" id="img-wrap-${life.lifeNumber}">
+        <div class="life-card-image-skeleton"></div>
+        <img class="life-card-image" src="${imgUrl}" alt="${escapeHtml(life.era)}"
+          onload="this.classList.add('loaded');this.previousElementSibling.style.display='none'"
+          onerror="this.parentElement.style.display='none'" />
       </div>
-      <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
-      <div class="life-facts">
-        <div class="life-fact"><div class="life-field-label">Годы жизни</div><div class="life-field-value">${escapeHtml(life.years)}</div></div>
-        <div class="life-fact"><div class="life-field-label">Прожито лет</div><div class="life-field-value">${escapeHtml(String(life.lifeSpan))}</div></div>
-        <div class="life-fact life-fact-wide"><div class="life-field-label">Эпоха</div><div class="life-field-value">${escapeHtml(life.era)}</div></div>
-        <div class="life-fact life-fact-wide"><div class="life-field-label">Регион</div><div class="life-field-value">${escapeHtml(life.region)}</div></div>
-        <div class="life-fact life-fact-wide"><div class="life-field-label">Профессия</div><div class="life-field-value">${escapeHtml(life.role)}</div></div>
+      <div class="life-card-header">
+        <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
+        <span class="life-card-years">${escapeHtml(life.years)} · ${escapeHtml(String(life.lifeSpan))} лет</span>
+      </div>
+      <div class="life-tags">
+        <span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>
+        <span class="life-tag">${escapeHtml(life.region)}</span>
+        <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
       <p class="life-story">${escapeHtml(story)}</p>
     </article>
