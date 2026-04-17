@@ -2,11 +2,16 @@
 // Порядок элементов должен строго совпадать. При добавлении новой записи — добавлять
 // соответствующие формы во все связанные массивы (_PREP, _GEN, _INSTR).
 import {
+  ACHIEVEMENTS,
+  ACHIEVEMENTS_ANCIENT,
   ENDINGS,
   ERAS,
   ERAS_GEN,
   ERAS_PREP,
+  FAMOUS_CONNECTIONS,
+  FAMOUS_CONNECTIONS_ANCIENT,
   FAMILY_LINES,
+  GRANDEUR_OPENERS,
   HAPPINESS,
   KEY_EVENTS,
   MODERN_20TH_CENTURY_ROLES,
@@ -155,13 +160,16 @@ function fmt(template, vars) {
   return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? `{${key}}`);
 }
 
-function buildNarrative(fields, seed) {
-  const s1 = fmt(pick(BEAT_OPENING,    seed + 20), fields);
+function buildNarrative(fields, seed, extras) {
+  const openingPool = extras.useGrandeur ? GRANDEUR_OPENERS : BEAT_OPENING;
+  const s1 = fmt(pick(openingPool,     seed + 20), fields);
   const s2 = fmt(pick(BEAT_CHARACTER,  seed + 21), fields);
   const s3 = fmt(pick(BEAT_FAMILY,     seed + 22), fields);
   const s4 = fmt(pick(BEAT_EVENT,      seed + 23), fields);
   const s5 = fmt(pick(BEAT_ENDING,     seed + 24), fields);
-  return `${s1} ${s2} ${s3} ${s4} ${s5}`;
+  const conn = extras.connection ? ` ${fmt(extras.connection, fields)}` : "";
+  const ach  = extras.achievement ? ` ${fmt(extras.achievement, fields)}` : "";
+  return `${s1} ${s2}${conn} ${s3}${ach} ${s4} ${s5}`;
 }
 
 export function generateLife(profile, lifeNumber) {
@@ -230,9 +238,24 @@ export function generateLife(profile, lifeNumber) {
     role_gen   = ROLES_GEN[roleIdx];
   }
 
+  const useGrandeur   = (seedBase + 40) % 3 === 0;
+  const useConnection = (seedBase + 41) % 3 === 0;
+  const useAchievement = (seedBase + 42) % 3 === 0;
+
+  const isModern = birthYear >= 1700;
+  const connPool = isModern ? FAMOUS_CONNECTIONS : FAMOUS_CONNECTIONS_ANCIENT;
+  const achPool  = isModern ? ACHIEVEMENTS : ACHIEVEMENTS_ANCIENT;
+
+  const connection  = useConnection  ? pick(connPool, seedBase + 50) : null;
+  const achievement = useAchievement ? pick(achPool,  seedBase + 51) : null;
+
+  const regionGenIdx = (seedBase + 2) % REGIONS.length;
+  const region_gen = REGIONS_PREP[regionGenIdx]; // используем prep как заглушку если нет отдельного gen
+
   const story = buildNarrative(
-    { name, era, era_gen, era_prep, region, region_prep, role, role_instr, role_gen, trait, family, event, ending, happiness },
-    seedBase
+    { name, era, era_gen, era_prep, region, region_prep, region_gen, role, role_instr, role_gen, trait, family, event, ending, happiness },
+    seedBase,
+    { useGrandeur, connection, achievement }
   );
 
   const isFemale = /[аяАЯaA]$/.test(name.trim());
