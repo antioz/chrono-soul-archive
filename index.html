@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Прошлые жизни</title>
+    <title>Past Lives</title>
     <link rel="stylesheet" href="./styles.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -11,26 +11,114 @@
         .then(r => r.json())
         .then(d => {
           const el = document.getElementById("user-count");
-          if (el && d.users) el.textContent = `✦ Уже ${d.users.toLocaleString("ru")} человек узнали свои прошлые жизни`;
+          if (el && d.users) el.textContent = `✦ ${d.users.toLocaleString()} people have discovered their past lives`;
+          el?.setAttribute("data-ru", `✦ Уже ${d.users?.toLocaleString("ru")} человек узнали свои прошлые жизни`);
         })
         .catch(() => {});
     </script>
+    <style>
+      .translate-bar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(15, 23, 42, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(34, 211, 238, 0.25);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 200;
+        transform: translateY(100%);
+        animation: slideUp 0.4s 0.5s ease forwards;
+      }
+      .translate-bar-icon {
+        width: 18px; height: 18px; flex-shrink: 0;
+        animation: spin 1s linear infinite;
+      }
+      .translate-bar-text {
+        font-size: 13px;
+        color: #94a3b8;
+        font-family: -apple-system, sans-serif;
+      }
+      .translate-bar-text span {
+        color: #22d3ee;
+        font-weight: 600;
+      }
+      @keyframes slideUp {
+        to { transform: translateY(0); }
+      }
+      @keyframes slideDown {
+        from { transform: translateY(0); }
+        to { transform: translateY(100%); }
+      }
+      .translate-bar.hide {
+        animation: slideDown 0.4s ease forwards;
+      }
+      .translating [data-en], .translating [data-ru] {
+        transition: opacity 0.3s;
+      }
+      .fade-out { opacity: 0 !important; }
+    </style>
   </head>
   <body>
     <div class="app">
-      <h1 class="landing-title">Узнай, кем ты был в прошлой жизни.</h1>
+      <h1 class="landing-title" id="main-title">Discover who you were in a past life.</h1>
 
       <div class="hero-wrap">
         <img
           src="./assets/images/hero-placeholder.svg"
-          alt="Chrono Soul Archive — дерево прошлых жизней"
+          alt="Past Lives"
           class="hero-image"
         />
       </div>
 
       <p class="social-proof" id="user-count"></p>
-      <a href="./learn.html?reset=1" class="btn btn-primary">Начать</a>
-      <a href="./description.html" class="btn-link" style="text-align:center; display:block;">О проекте</a>
+      <a href="./learn.html?reset=1" class="btn btn-primary" id="main-btn">Start</a>
+      <a href="./description.html" class="btn-link" id="about-link" style="text-align:center; display:block;">About</a>
     </div>
+
+    <div class="translate-bar" id="translate-bar">
+      <svg class="translate-bar-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="translate-bar-text">Автоматический перевод — <span>русский язык</span></div>
+    </div>
+
+    <script>
+      const translations = {
+        "main-title": "Узнай, кем ты был в прошлой жизни.",
+        "main-btn":   "Начать",
+        "about-link": "О проекте"
+      };
+
+      setTimeout(() => {
+        // Fade out text
+        Object.keys(translations).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.opacity = "0";
+        });
+        const uc = document.getElementById("user-count");
+        if (uc) uc.style.opacity = "0";
+
+        setTimeout(() => {
+          // Swap to Russian
+          document.documentElement.lang = "ru";
+          document.title = "Прошлые жизни";
+          Object.entries(translations).forEach(([id, ru]) => {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = ru; el.style.opacity = "1"; }
+          });
+          // Swap social proof if loaded
+          if (uc) {
+            const ru = uc.getAttribute("data-ru");
+            if (ru) uc.textContent = ru;
+            uc.style.opacity = "1";
+          }
+          // Hide bar
+          document.getElementById("translate-bar").classList.add("hide");
+        }, 350);
+      }, 2000);
+    </script>
   </body>
 </html>
