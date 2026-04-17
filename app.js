@@ -72,6 +72,15 @@ function loadState() {
   }
 }
 
+// ── Auth headers ────────────────────────────────────
+
+function authHeaders() {
+  const initData = tg?.initData;
+  const h = { "Content-Type": "application/json" };
+  if (initData) h["X-Telegram-Init-Data"] = initData;
+  return h;
+}
+
 // ── Analytics ───────────────────────────────────────
 
 function track(event, payload) {
@@ -87,7 +96,7 @@ function track(event, payload) {
 async function apiLoadUser() {
   if (!tgUserId) return;
   try {
-    const res = await fetch(`${API}/api/user/${tgUserId}`);
+    const res = await fetch(`${API}/api/user/${tgUserId}`, { headers: authHeaders() });
     if (!res.ok) return;
     const data = await res.json();
     state.shareUnlocked = data.shareUnlocked;
@@ -106,7 +115,7 @@ async function apiSaveLife(life) {
   try {
     await fetch(`${API}/api/user/${tgUserId}/life`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({ lifeNumber: life.lifeNumber, payload: life })
     });
   } catch (e) {
@@ -117,7 +126,7 @@ async function apiSaveLife(life) {
 async function apiUnlockShare() {
   if (!tgUserId) return;
   try {
-    await fetch(`${API}/api/user/${tgUserId}/share`, { method: "POST" });
+    await fetch(`${API}/api/user/${tgUserId}/share`, { method: "POST", headers: authHeaders() });
   } catch (e) {
     console.error("apiUnlockShare error", e);
   }
@@ -128,7 +137,7 @@ async function apiSendInvoice(lifeNumber) {
   try {
     const res = await fetch(`${API}/api/user/${tgUserId}/invoice`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({ lifeNumber })
     });
     return res.ok ? await res.json() : null;
@@ -254,7 +263,7 @@ function renderActions() {
     // После открытия канала проверяем подписку через бэкенд
     if (tgUserId) {
       setTimeout(async () => {
-        const res = await fetch(`${API}/api/user/${tgUserId}/check-channel`);
+        const res = await fetch(`${API}/api/user/${tgUserId}/check-channel`, { headers: authHeaders() });
         const data = res.ok ? await res.json() : null;
         if (data?.subscribed) {
           state.channelUnlocked = true;
