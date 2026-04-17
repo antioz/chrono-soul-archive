@@ -101,17 +101,17 @@ async function apiUnlockShare() {
 }
 
 async function apiSendInvoice(lifeNumber) {
-  if (!tgUserId) return false;
+  if (!tgUserId) return null;
   try {
     const res = await fetch(`${API}/api/user/${tgUserId}/invoice`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lifeNumber })
     });
-    return res.ok;
+    return res.ok ? await res.json() : null;
   } catch (e) {
     console.error("apiSendInvoice error", e);
-    return false;
+    return null;
   }
 }
 
@@ -208,10 +208,17 @@ function renderActions() {
   document.getElementById("share-btn")?.addEventListener("click", () => showShareModal());
   document.getElementById("pay-stars-btn")?.addEventListener("click", async () => {
     const nextLifeNumber = state.lives.length + 1;
-    if (tgUserId) {
-      // Real Stars payment via backend
-      await apiSendInvoice(nextLifeNumber);
-      // After payment, bot sends invoice to user in Telegram — listen for successful_payment via bot
+    if (tgUserId && tg?.openInvoice) {
+      const result = await apiSendInvoice(nextLifeNumber);
+      if (result?.link) {
+        tg.openInvoice(result.link, (status) => {
+          if (status === "paid") {
+            state.paidLives += 1;
+            saveState();
+            openNextLife();
+          }
+        });
+      }
     } else {
       // Fallback demo (browser testing)
       state.paidLives += 1;
