@@ -344,8 +344,8 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
   submitBtn.textContent = "Проверяем город...";
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&format=json&limit=1`,
-      { headers: { "Accept-Language": "ru" } }
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1&addressdetails=0`,
+      { headers: { "Accept-Language": "ru", "User-Agent": "ChronoSoulArchive/1.0" } }
     );
     const data = await res.json();
     if (!data.length) {
