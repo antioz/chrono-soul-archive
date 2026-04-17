@@ -220,9 +220,9 @@ function renderActions() {
   document.getElementById("share-btn")?.addEventListener("click", () => showShareModal());
   document.getElementById("pay-stars-btn")?.addEventListener("click", async () => {
     const nextLifeNumber = state.lives.length + 1;
-    if (tgUserId && tg?.openInvoice) {
+    if (tgUserId) {
       const result = await apiSendInvoice(nextLifeNumber);
-      if (result?.link) {
+      if (result?.link && tg?.openInvoice) {
         tg.openInvoice(result.link, (status) => {
           if (status === "paid") {
             state.paidLives += 1;
@@ -230,9 +230,14 @@ function renderActions() {
             openNextLife();
           }
         });
+      } else if (result?.link) {
+        // Fallback: open invoice link in browser
+        window.open(result.link, "_blank");
+      } else {
+        alert("Не удалось создать счёт. Попробуй ещё раз.");
       }
     } else {
-      // Fallback demo (browser testing)
+      // Demo mode (browser without Telegram)
       state.paidLives += 1;
       saveState();
       await openNextLife();
