@@ -216,6 +216,21 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
 
   if (!birthDate || !city) return;
 
+  // Validate date: must be in past, year 1900–current year
+  const dateObj = new Date(birthDate);
+  const now = new Date();
+  const year = dateObj.getFullYear();
+  if (isNaN(dateObj.getTime()) || dateObj >= now || year < 1900 || year > now.getFullYear()) {
+    alert("Пожалуйста, введи корректную дату рождения (1900 — сегодня).");
+    return;
+  }
+
+  // Validate city: only letters, spaces, hyphens; min 2 chars
+  if (!/^[a-zA-Zа-яА-ЯёЁ\s\-]{2,}$/.test(city)) {
+    alert("Пожалуйста, введи название города (только буквы, минимум 2 символа).");
+    return;
+  }
+
   state.profile = { birthDate, city, name };
   state.lives = [];
   state.shareUnlocked = false;
