@@ -176,10 +176,18 @@ function ensureLivesGenerated(targetLife) {
 
 // ── Render ──────────────────────────────────────────
 
+function lifeImageUrl(life) {
+  const prompt = encodeURIComponent(`${life.role}, ${life.era}, ${life.region}, historical portrait, painterly, cinematic lighting, detailed`);
+  return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=300&nologo=true&seed=${life.lifeNumber}`;
+}
+
 function renderLifeCard(life) {
   const story = capitalizeSentences(life.story);
   return `
     <article class="life-card">
+      <div class="life-card-image-wrap">
+        <img class="life-card-image" src="${lifeImageUrl(life)}" alt="${escapeHtml(life.era)}" loading="lazy" />
+      </div>
       <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
       <div class="life-facts">
         <div class="life-fact"><div class="life-field-label">Годы жизни</div><div class="life-field-value">${escapeHtml(life.years)}</div></div>
@@ -392,7 +400,8 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
       { headers: { "Accept-Language": "ru", "User-Agent": "ChronoSoulArchive/1.0" } }
     );
     const data = await res.json();
-    if (!data.length) {
+    const isCity = data.length > 0 && ["place", "boundary"].includes(data[0].class);
+    if (!isCity) {
       alert("Город не найден. Пожалуйста, введи реальный город.");
       submitBtn.disabled = false;
       submitBtn.textContent = "Узнать прошлую жизнь";

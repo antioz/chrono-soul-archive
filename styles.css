@@ -195,6 +195,23 @@ body {
   margin-bottom: 12px;
 }
 
+.life-card-image-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #0d1f3c;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.life-card-image {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+}
+
 .life-card-title {
   font-size: 13px;
   font-weight: 700;
