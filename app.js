@@ -40,6 +40,17 @@ if (disclaimerTextEl) {
   disclaimerTextEl.textContent = LONG_DISCLAIMER_TEXT;
 }
 
+// ── Date mask: auto-insert dots as user types ───────
+const birthDateInput = document.getElementById("birthDate");
+if (birthDateInput) {
+  birthDateInput.addEventListener("input", (e) => {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 8);
+    if (v.length >= 5) v = v.slice(0, 2) + "." + v.slice(2, 4) + "." + v.slice(4);
+    else if (v.length >= 3) v = v.slice(0, 2) + "." + v.slice(2);
+    e.target.value = v;
+  });
+}
+
 if (new URLSearchParams(window.location.search).get("reset") === "1") {
   localStorage.removeItem(STORAGE_KEY);
 }
@@ -326,13 +337,25 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
 
   if (!birthDate || !city) return;
 
-  const dateObj = new Date(birthDate);
+  // Parse dd.mm.yyyy mask
+  const parts = birthDate.split(".");
+  if (parts.length !== 3 || parts[2].length !== 4) {
+    alert("Введи дату в формате ДД.ММ.ГГГГ");
+    return;
+  }
+  const [dd, mm, yyyy] = parts.map(Number);
+  const dateObj = new Date(yyyy, mm - 1, dd);
   const now = new Date();
-  const year = dateObj.getFullYear();
-  if (isNaN(dateObj.getTime()) || dateObj >= now || year < 1900 || year > now.getFullYear()) {
+  if (
+    isNaN(dateObj.getTime()) ||
+    dateObj.getDate() !== dd || dateObj.getMonth() !== mm - 1 ||
+    dateObj >= now || yyyy < 1900 || yyyy > now.getFullYear()
+  ) {
     alert("Пожалуйста, введи корректную дату рождения (1900 — сегодня).");
     return;
   }
+  // Convert to ISO for downstream use
+  const isoDate = `${yyyy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`;
 
   if (!/^[a-zA-Zа-яА-ЯёЁ\s\-]{2,}$/.test(city)) {
     alert("Пожалуйста, введи название города (только буквы, минимум 2 символа).");
@@ -360,7 +383,7 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
   submitBtn.disabled = false;
   submitBtn.textContent = "Узнать прошлую жизнь";
 
-  state.profile = { birthDate, city, name };
+  state.profile = { birthDate: isoDate, city, name };
   state.lives = [];
   state.shareUnlocked = false;
   state.paidLives = 0;
