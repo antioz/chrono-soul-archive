@@ -211,7 +211,7 @@ body {
   margin-bottom: 16px;
   background: #0d1f3c;
   position: relative;
-  aspect-ratio: 16/9;
+  height: 200px;
 }
 
 .life-card-image-skeleton {
@@ -286,6 +286,26 @@ body {
   line-height: 1.75;
   padding-top: 14px;
   border-top: 1px solid #1e2d47;
+  margin-bottom: 14px;
+}
+
+.share-life-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #2a3f60;
+  color: #64748b;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.share-life-btn:hover, .share-life-btn:active {
+  color: #94a3b8;
+  border-color: #3b5a8a;
 }
 
 /* ── Actions ──────────────────────────────────────── */
@@ -460,6 +480,17 @@ body {
   line-height: 1.6;
   text-align: center;
   margin-bottom: 20px;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 360px) {
+  .app { padding: 16px 14px 32px; }
+  .life-card { padding: 12px; }
+  .life-card-image-wrap { height: 160px; }
+  .life-card-title { font-size: 16px; }
+  .life-story { font-size: 13px; }
+  .btn { font-size: 15px; padding: 13px; }
+  .life-nav-btn { padding: 6px 10px; font-size: 12px; }
 }
 
 /* ── Utility ──────────────────────────────────────── */

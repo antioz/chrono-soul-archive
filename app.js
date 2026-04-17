@@ -9,6 +9,7 @@ const state = {
   profile: null,
   lives: [],
   shareUnlocked: false,
+  channelUnlocked: false,
   paidLives: 0
 };
 
@@ -90,6 +91,7 @@ async function apiLoadUser() {
     if (!res.ok) return;
     const data = await res.json();
     state.shareUnlocked = data.shareUnlocked;
+    state.channelUnlocked = data.channelUnlocked ?? false;
     state.paidLives = data.paidLives;
     if (data.lives?.length) {
       state.lives = data.lives;
@@ -161,6 +163,7 @@ function getCalculationMessage(lifeNumber) {
 function currentMaxUnlockedLife() {
   let unlocked = 2;
   if (state.shareUnlocked) unlocked = 3;
+  if (state.channelUnlocked) unlocked = 4;
   unlocked += state.paidLives;
   return unlocked;
 }
@@ -202,6 +205,7 @@ function renderLifeCard(life) {
         <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
       <p class="life-story">${escapeHtml(story)}</p>
+      <button class="share-life-btn" onclick="shareLifeCard()">↗ Поделиться</button>
     </article>
   `;
 }
@@ -231,7 +235,9 @@ function renderActions() {
   if (nextLife <= maxUnlocked) {
     html += `<button class="btn btn-primary" id="open-next">Открыть жизнь №${nextLife}</button>`;
   } else if (nextLife === 3 && !state.shareUnlocked) {
-    html += `<button class="btn btn-primary" id="share-btn">Предыдущая жизнь</button>`;
+    html += `<button class="btn btn-primary" id="share-btn">Открыть бесплатно — поделиться</button>`;
+  } else if (nextLife === 4 && !state.channelUnlocked) {
+    html += `<button class="btn btn-primary" id="channel-btn">Открыть бесплатно — подписаться на канал</button>`;
   } else {
     html += `<button class="btn btn-primary" id="pay-stars-btn">Открыть жизнь №${nextLife} за Stars ✦</button>`;
   }
@@ -241,6 +247,29 @@ function renderActions() {
 
   document.getElementById("open-next")?.addEventListener("click", () => openNextLife());
   document.getElementById("share-btn")?.addEventListener("click", () => showShareModal());
+  document.getElementById("channel-btn")?.addEventListener("click", () => {
+    const channelUrl = "https://t.me/webthreesome";
+    if (tg?.openTelegramLink) tg.openTelegramLink(channelUrl);
+    else window.open(channelUrl, "_blank");
+    // После открытия канала проверяем подписку через бэкенд
+    if (tgUserId) {
+      setTimeout(async () => {
+        const res = await fetch(`${API}/api/user/${tgUserId}/check-channel`);
+        const data = res.ok ? await res.json() : null;
+        if (data?.subscribed) {
+          state.channelUnlocked = true;
+          saveState();
+          openNextLife();
+        } else {
+          alert("Подпишись на канал @webthreesome и нажми кнопку снова.");
+        }
+      }, 3000);
+    } else {
+      state.channelUnlocked = true;
+      saveState();
+      openNextLife();
+    }
+  });
   document.getElementById("pay-stars-btn")?.addEventListener("click", async () => {
     const nextLifeNumber = state.lives.length + 1;
     if (tgUserId) {
@@ -334,6 +363,10 @@ modalShareConfirm?.addEventListener("click", async () => {
 });
 
 modalShareCancel?.addEventListener("click", hideShareModal);
+
+function shareLifeCard() {
+  shareResult();
+}
 
 function shareResult() {
   const ref = tgUserId ? `?start=ref_${tgUserId}` : "";
