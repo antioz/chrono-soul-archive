@@ -320,6 +320,88 @@ body {
   margin-top: 10px;
 }
 
+/* ── Spinner ──────────────────────────────────────── */
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid #1e2d47;
+  border-top-color: #22d3ee;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Life navigation ──────────────────────────────── */
+.life-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.life-nav-btn {
+  background: #1e2d47;
+  color: #94a3b8;
+  border: 1px solid #2a3f60;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.life-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.life-nav-counter {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ── Share modal ──────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #111827;
+  border: 1px solid #1e2d47;
+  border-radius: 18px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.modal-text {
+  font-size: 14px;
+  color: #94a3b8;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 /* ── Utility ──────────────────────────────────────── */
 .hidden {
   display: none !important;

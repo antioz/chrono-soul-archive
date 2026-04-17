@@ -11,21 +11,26 @@ const state = {
   paidLives: 0
 };
 
+let viewingLifeIndex = 0;
+
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
 }
 
-const disclaimerEl = document.getElementById("disclaimer");
-const formSectionEl = document.getElementById("form-section");
-const statusSectionEl = document.getElementById("status-section");
-const statusTextEl = document.getElementById("status-text");
-const resultsSectionEl = document.getElementById("results-section");
-const resultsListEl = document.getElementById("results-list");
-const actionsEl = document.getElementById("actions");
-const disclaimerTextEl = document.getElementById("disclaimer-long");
+const disclaimerEl        = document.getElementById("disclaimer");
+const formSectionEl       = document.getElementById("form-section");
+const statusSectionEl     = document.getElementById("status-section");
+const statusTextEl        = document.getElementById("status-text");
+const resultsSectionEl    = document.getElementById("results-section");
+const resultsListEl       = document.getElementById("results-list");
+const actionsEl           = document.getElementById("actions");
+const disclaimerTextEl    = document.getElementById("disclaimer-long");
 const acceptDisclaimerBtn = document.getElementById("accept-disclaimer");
+const shareModal          = document.getElementById("share-modal");
+const modalShareConfirm   = document.getElementById("modal-share-confirm");
+const modalShareCancel    = document.getElementById("modal-share-cancel");
 
 if (disclaimerTextEl) {
   disclaimerTextEl.textContent = LONG_DISCLAIMER_TEXT;
@@ -43,10 +48,9 @@ function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return;
   try {
-    const parsed = JSON.parse(raw);
-    Object.assign(state, parsed);
-  } catch (error) {
-    console.error("State parse error", error);
+    Object.assign(state, JSON.parse(raw));
+  } catch (e) {
+    console.error("State parse error", e);
   }
 }
 
@@ -56,13 +60,19 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function setLoading(isLoading) {
-  statusSectionEl.classList.toggle("hidden", !isLoading);
+// Capitalizes first letter after sentence-ending punctuation and at string start
+function capitalizeSentences(text) {
+  return text.replace(/(^|[.!?]\s+)([а-яёa-z])/gu, (_, before, char) => before + char.toUpperCase());
 }
 
-function getCalculationMessage(nextLifeNumber) {
-  const idx = (nextLifeNumber - 1) % CALCULATION_MESSAGES.length;
-  return CALCULATION_MESSAGES[idx];
+function setLoading(isLoading) {
+  statusSectionEl.classList.toggle("hidden", !isLoading);
+  resultsSectionEl.classList.toggle("hidden", isLoading);
+  actionsEl.innerHTML = "";
+}
+
+function getCalculationMessage(lifeNumber) {
+  return CALCULATION_MESSAGES[(lifeNumber - 1) % CALCULATION_MESSAGES.length];
 }
 
 function currentMaxUnlockedLife() {
@@ -75,16 +85,13 @@ function currentMaxUnlockedLife() {
 function ensureLivesGenerated(targetLife) {
   if (!state.profile) return;
   while (state.lives.length < targetLife) {
-    const nextLifeNumber = state.lives.length + 1;
-    state.lives.push(generateLife(state.profile, nextLifeNumber));
+    state.lives.push(generateLife(state.profile, state.lives.length + 1));
   }
 }
 
 function renderLifeCard(life) {
-  const title = life.lifeNumber === 1
-    ? "ВАША ПРОШЛАЯ ЖИЗНЬ"
-    : `Жизнь #${life.lifeNumber}`;
-
+  const title = life.lifeNumber === 1 ? "Ваша прошлая жизнь" : `Жизнь #${life.lifeNumber}`;
+  const story = capitalizeSentences(life.story);
   return `
     <article class="life-card">
       <h3 class="life-card-title">${title}</h3>
@@ -95,58 +102,68 @@ function renderLifeCard(life) {
         <div class="life-fact"><div class="life-field-label">Эпоха · регион</div><div class="life-field-value">${escapeHtml(life.era)}, ${escapeHtml(life.region)}</div></div>
         <div class="life-fact life-fact-wide"><div class="life-field-label">Профессия</div><div class="life-field-value">${escapeHtml(life.role)}</div></div>
       </div>
-      <p class="life-story">${escapeHtml(life.story)}</p>
+      <p class="life-story">${escapeHtml(story)}</p>
     </article>
   `;
 }
 
+function renderNavigation() {
+  const total = state.lives.length;
+  if (total <= 1) return "";
+  const prevOk = viewingLifeIndex > 0;
+  const nextOk = viewingLifeIndex < total - 1;
+  return `
+    <div class="life-nav">
+      <button class="life-nav-btn" id="nav-prev" ${prevOk ? "" : "disabled"}>← Жизнь #${viewingLifeIndex}</button>
+      <span class="life-nav-counter">${viewingLifeIndex + 1} / ${total}</span>
+      <button class="life-nav-btn" id="nav-next" ${nextOk ? "" : "disabled"}>Жизнь #${viewingLifeIndex + 2} →</button>
+    </div>
+  `;
+}
+
 function renderActions() {
+  const isLatest = viewingLifeIndex === state.lives.length - 1;
+  if (!isLatest) { actionsEl.innerHTML = ""; return; }
+
   const maxUnlocked = currentMaxUnlockedLife();
   const nextLife = state.lives.length + 1;
   let html = `<div class="action-row">`;
 
   if (nextLife <= maxUnlocked) {
-    html += `<button class="btn" id="open-next">Открыть жизнь №${nextLife}</button>`;
+    html += `<button class="btn btn-primary" id="open-next">Открыть жизнь №${nextLife}</button>`;
   } else if (nextLife === 3 && !state.shareUnlocked) {
-    html += `<button class="btn" id="share-btn">Поделиться и открыть жизнь №3</button>`;
+    html += `<button class="btn btn-primary" id="share-btn">Предыдущая жизнь</button>`;
   } else {
-    html += `<button class="btn" id="pay-stars-btn">Открыть жизнь №${nextLife} за Stars (демо)</button>`;
+    html += `<button class="btn btn-primary" id="pay-stars-btn">Открыть жизнь №${nextLife} за Stars (демо)</button>`;
   }
 
   html += `</div>`;
   actionsEl.innerHTML = html;
 
-  const openNextBtn = document.getElementById("open-next");
-  if (openNextBtn) {
-    openNextBtn.addEventListener("click", async () => {
-      await openNextLife();
-    });
-  }
-
-  const shareBtn = document.getElementById("share-btn");
-  if (shareBtn) {
-    shareBtn.addEventListener("click", async () => {
-      state.shareUnlocked = true;
-      saveState();
-      shareResult();
-      await openNextLife();
-    });
-  }
-
-  const payBtn = document.getElementById("pay-stars-btn");
-  if (payBtn) {
-    payBtn.addEventListener("click", async () => {
-      state.paidLives += 1;
-      saveState();
-      await openNextLife();
-    });
-  }
-
+  document.getElementById("open-next")?.addEventListener("click", () => openNextLife());
+  document.getElementById("share-btn")?.addEventListener("click", () => showShareModal());
+  document.getElementById("pay-stars-btn")?.addEventListener("click", async () => {
+    state.paidLives += 1;
+    saveState();
+    await openNextLife();
+  });
 }
 
 function renderResults() {
-  if (!state.profile) return;
-  resultsListEl.innerHTML = state.lives.map(renderLifeCard).join("");
+  if (!state.profile || state.lives.length === 0) return;
+  viewingLifeIndex = Math.max(0, Math.min(viewingLifeIndex, state.lives.length - 1));
+
+  resultsListEl.innerHTML = renderNavigation() + renderLifeCard(state.lives[viewingLifeIndex]);
+
+  document.getElementById("nav-prev")?.addEventListener("click", () => {
+    viewingLifeIndex = Math.max(0, viewingLifeIndex - 1);
+    renderResults();
+  });
+  document.getElementById("nav-next")?.addEventListener("click", () => {
+    viewingLifeIndex = Math.min(state.lives.length - 1, viewingLifeIndex + 1);
+    renderResults();
+  });
+
   renderActions();
 }
 
@@ -154,22 +171,39 @@ async function openNextLife() {
   const nextLifeNumber = state.lives.length + 1;
   if (nextLifeNumber > currentMaxUnlockedLife()) return;
 
+  resultsSectionEl.classList.add("hidden");
   setLoading(true);
   statusTextEl.textContent = getCalculationMessage(nextLifeNumber);
-  await new Promise((resolve) => setTimeout(resolve, 1400));
+  await new Promise(resolve => setTimeout(resolve, 3000));
   ensureLivesGenerated(nextLifeNumber);
   saveState();
+  viewingLifeIndex = state.lives.length - 1;
   setLoading(false);
   renderResults();
 }
 
+function showShareModal() {
+  shareModal.classList.remove("hidden");
+}
+
+function hideShareModal() {
+  shareModal.classList.add("hidden");
+}
+
+modalShareConfirm?.addEventListener("click", async () => {
+  hideShareModal();
+  state.shareUnlocked = true;
+  saveState();
+  shareResult();
+  await openNextLife();
+});
+
+modalShareCancel?.addEventListener("click", hideShareModal);
+
 function shareResult() {
-  const text = encodeURIComponent(
-    "Мой хронологический профиль прошлых воплощений уже готов. Проверь свой."
-  );
+  const text = encodeURIComponent("Мой хронологический профиль прошлых воплощений уже готов. Проверь свой.");
   const url = encodeURIComponent("https://t.me");
   const shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
-
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
   } else {
@@ -178,9 +212,7 @@ function shareResult() {
 }
 
 function initFlow() {
-  if (!disclaimerEl) {
-    state.disclaimerAccepted = true;
-  }
+  if (!disclaimerEl) state.disclaimerAccepted = true;
 
   if (!state.disclaimerAccepted && disclaimerEl) {
     disclaimerEl.classList.remove("hidden");
@@ -189,24 +221,21 @@ function initFlow() {
     return;
   }
 
-  if (disclaimerEl) {
-    disclaimerEl.classList.add("hidden");
-  }
+  if (disclaimerEl) disclaimerEl.classList.add("hidden");
   formSectionEl.classList.toggle("hidden", !!state.profile);
   resultsSectionEl.classList.toggle("hidden", !state.profile);
 
-  if (state.profile) {
+  if (state.profile && state.lives.length > 0) {
+    viewingLifeIndex = state.lives.length - 1;
     renderResults();
   }
 }
 
-if (acceptDisclaimerBtn) {
-  acceptDisclaimerBtn.addEventListener("click", () => {
-    state.disclaimerAccepted = true;
-    saveState();
-    initFlow();
-  });
-}
+acceptDisclaimerBtn?.addEventListener("click", () => {
+  state.disclaimerAccepted = true;
+  saveState();
+  initFlow();
+});
 
 document.getElementById("profile-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -216,7 +245,6 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
 
   if (!birthDate || !city) return;
 
-  // Validate date: must be in past, year 1900–current year
   const dateObj = new Date(birthDate);
   const now = new Date();
   const year = dateObj.getFullYear();
@@ -225,7 +253,6 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
     return;
   }
 
-  // Validate city: only letters, spaces, hyphens; min 2 chars
   if (!/^[a-zA-Zа-яА-ЯёЁ\s\-]{2,}$/.test(city)) {
     alert("Пожалуйста, введи название города (только буквы, минимум 2 символа).");
     return;

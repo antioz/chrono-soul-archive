@@ -66,6 +66,7 @@
 
       <!-- Loading section -->
       <section id="status-section" class="status-card hidden">
+        <div class="spinner"></div>
         <h2 class="status-title">Идёт реконструкция</h2>
         <p id="status-text">Сверяем архивные слои и исторические корреляции...</p>
       </section>
@@ -77,6 +78,16 @@
       </section>
 
     </div>
+    <!-- Share modal -->
+    <div id="share-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h3 class="modal-title">Получите доступ к предыдущей жизни</h3>
+        <p class="modal-text">Поделитесь своим результатом в Telegram — и следующее воплощение откроется бесплатно.</p>
+        <button class="btn btn-primary" id="modal-share-confirm">Поделиться</button>
+        <button class="btn secondary" id="modal-share-cancel">Отмена</button>
+      </div>
+    </div>
+
     <script type="module" src="./app.js"></script>
   </body>
 </html>
