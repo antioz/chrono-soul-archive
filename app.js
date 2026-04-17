@@ -456,10 +456,21 @@ function shareLifeCard() {
 }
 
 function shareResult() {
+  const life = state.lives[viewingLifeIndex];
   const ref = tgUserId ? `?start=ref_${tgUserId}` : "";
   const botUrl = `https://t.me/previoslifebot${ref}`;
-  const text = encodeURIComponent("Узнал, кем был в прошлой жизни. Попробуй и ты 👇");
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${text}`;
+
+  let text = "Узнал, кем был в прошлой жизни. Попробуй и ты 👇\n" + botUrl;
+  let shareMediaUrl = botUrl;
+
+  if (life) {
+    const sentences = life.story.split(/(?<=[.!?])\s+/);
+    const excerpt = sentences.slice(0, 2).join(" ");
+    text = `${life.name} · ${life.era}\n\n${excerpt}\n\n👉 ${botUrl}`;
+    shareMediaUrl = lifeImageUrl(life);
+  }
+
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareMediaUrl)}&text=${encodeURIComponent(text)}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
   } else {
