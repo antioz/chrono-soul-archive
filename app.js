@@ -161,7 +161,6 @@ function renderLifeCard(life) {
     <article class="life-card">
       <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
       <div class="life-facts">
-        <div class="life-fact"><div class="life-field-label">Имя</div><div class="life-field-value">${escapeHtml(life.name)}</div></div>
         <div class="life-fact"><div class="life-field-label">Годы жизни</div><div class="life-field-value">${escapeHtml(life.years)}</div></div>
         <div class="life-fact"><div class="life-field-label">Прожито лет</div><div class="life-field-value">${escapeHtml(String(life.lifeSpan))}</div></div>
         <div class="life-fact"><div class="life-field-label">Эпоха · регион</div><div class="life-field-value">${escapeHtml(life.era)}, ${escapeHtml(life.region)}</div></div>
