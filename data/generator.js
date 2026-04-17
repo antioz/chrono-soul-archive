@@ -36,6 +36,39 @@ function pick(list, seed) {
   return list[seed % list.length];
 }
 
+// Year ranges [start, end] matching each era — same order as ERAS array
+const ERA_YEAR_RANGES = [
+  [200,   600],  // Поздняя античность
+  [500,  1000],  // Раннее средневековье
+  [1400, 1600],  // Эпоха Ренессанса
+  [1800, 1900],  // Индустриальный XIX век
+  [1900, 1960],  // Начало XX века
+  [1000, 1400],  // Позднее средневековье
+  [1400, 1600],  // Эпоха великих открытий
+  [1700, 1800],  // Просвещение XVIII века
+  [-300,   30],  // Эпоха эллинизма
+  [1300, 1900],  // Османская эпоха
+  [ -27,  476],  // Имперский Рим
+  [1500, 1700],  // Раннее Новое время
+  [1600, 1750],  // Эпоха барокко
+  [1837, 1901],  // Викторианская эра
+  [1096, 1291],  // Эпоха крестовых походов
+  [-206,  220],  // Ханьская династия
+  [ 750, 1258],  // Арабский золотой век
+  [ 800, 1100],  // Эпоха викингов
+  [1185, 1868],  // Феодальная Япония
+  [1368, 1644],  // Эпоха Мин
+];
+
+function pickEraByYear(birthYear, seed) {
+  const candidates = ERAS
+    .map((era, i) => ({ era, i, range: ERA_YEAR_RANGES[i] }))
+    .filter(({ range }) => birthYear >= range[0] && birthYear <= range[1]);
+  const pool = candidates.length ? candidates : ERAS.map((era, i) => ({ era, i }));
+  const chosen = pool[seed % pool.length];
+  return { era: chosen.era, eraIdx: chosen.i };
+}
+
 function getProfileBirthYear(birthDate) {
   const year = Number.parseInt(String(birthDate).slice(0, 4), 10);
   return Number.isNaN(year) ? 2000 : year;
@@ -110,7 +143,6 @@ export function generateLife(profile, lifeNumber) {
   const extraOffset = seedBase % 6;
   let deathYear = profileBirthYear - lifeNumber * yearsStepBack - extraOffset;
   let birthYear = deathYear - lifeSpan;
-  let era = pick(ERAS, seedBase + 1);
   let role = pick(ROLES, seedBase + 3);
   const region = pick(REGIONS, seedBase + 2);
   const namePool = lifeNumber === 1
@@ -118,12 +150,16 @@ export function generateLife(profile, lifeNumber) {
     : (NAMES_BY_REGION[region] ?? NAMES_HISTORICAL);
   let name = pick(namePool, seedBase + 9);
 
+  let era, eraIdx;
   if (lifeNumber === 1) {
     deathYear = Math.min(deathYear, profileBirthYear - 1);
     if (deathYear > 1999) deathYear = 1999;
     birthYear = deathYear - lifeSpan;
     era = "XX век";
+    eraIdx = null;
     role = pick(MODERN_20TH_CENTURY_ROLES, seedBase + 3);
+  } else {
+    ({ era, eraIdx } = pickEraByYear(birthYear, seedBase + 1));
   }
 
   const trait    = pick(TRAITS,         seedBase + 4);
@@ -141,7 +177,6 @@ export function generateLife(profile, lifeNumber) {
     era_gen  = "XX века";
     era_prep = "XX веке";
   } else {
-    const eraIdx = (seedBase + 1) % ERAS.length;
     era_gen  = ERAS_GEN[eraIdx];
     era_prep = ERAS_PREP[eraIdx];
   }

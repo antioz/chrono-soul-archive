@@ -90,7 +90,7 @@ function ensureLivesGenerated(targetLife) {
 }
 
 function renderLifeCard(life) {
-  const title = life.lifeNumber === 1 ? "Ваша прошлая жизнь" : `Жизнь #${life.lifeNumber}`;
+  const title = life.name;
   const story = capitalizeSentences(life.story);
   return `
     <article class="life-card">
