@@ -297,9 +297,10 @@ modalShareConfirm?.addEventListener("click", async () => {
 modalShareCancel?.addEventListener("click", hideShareModal);
 
 function shareResult() {
-  const text = encodeURIComponent("Мой хронологический профиль прошлых воплощений уже готов. Проверь свой.");
-  const url = encodeURIComponent("https://t.me");
-  const shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+  const ref = tgUserId ? `?start=ref_${tgUserId}` : "";
+  const botUrl = `https://t.me/previoslifebot${ref}`;
+  const text = encodeURIComponent("Узнал, кем был в прошлой жизни. Попробуй и ты 👇");
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${text}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
   } else {

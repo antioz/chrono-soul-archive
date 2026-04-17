@@ -88,6 +88,15 @@ body {
   margin-bottom: 22px;
 }
 
+/* ── Social proof ─────────────────────────────────── */
+.social-proof {
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 16px;
+  min-height: 18px;
+}
+
 /* ── Form page ────────────────────────────────────── */
 .form-title {
   font-size: 26px;

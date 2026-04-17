@@ -6,6 +6,15 @@
     <title>Прошлые жизни</title>
     <link rel="stylesheet" href="./styles.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      fetch("https://chrono-soul-backend-production.up.railway.app/api/stats")
+        .then(r => r.json())
+        .then(d => {
+          const el = document.getElementById("user-count");
+          if (el && d.users) el.textContent = `✦ Уже ${d.users.toLocaleString("ru")} человек узнали свои прошлые жизни`;
+        })
+        .catch(() => {});
+    </script>
   </head>
   <body>
     <div class="app">
@@ -19,6 +28,7 @@
         />
       </div>
 
+      <p class="social-proof" id="user-count"></p>
       <a href="./learn.html?reset=1" class="btn btn-primary">Начать</a>
       <a href="./description.html" class="btn-link" style="text-align:center; display:block;">О проекте</a>
     </div>
