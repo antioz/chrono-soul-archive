@@ -198,13 +198,29 @@ function lifeImageStyle(era) {
 
 function lifeImageUrl(life) {
   const style = lifeImageStyle(life.era);
-  const prompt = encodeURIComponent(`${life.role} in ${life.region}, ${style}, no text, no watermark`);
-  return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=320&nologo=true&seed=${life.lifeNumber * 31 + 7}`;
+  const gender = life.isFemale ? "woman" : "man";
+  const prompt = encodeURIComponent(`${gender}, ${life.role} in ${life.region}, ${style}, no text, no watermark, portrait`);
+  return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=640&nologo=true&seed=${life.lifeNumber * 31 + 7}`;
+}
+
+function storyToParagraphs(story) {
+  const sentences = capitalizeSentences(story).split(/(?<=[.!?])\s+/);
+  const paras = [];
+  for (let i = 0; i < sentences.length; i += 2) {
+    paras.push(sentences.slice(i, i + 2).join(" "));
+  }
+  return paras.map(p => `<p class="life-story-para">${escapeHtml(p)}</p>`).join("");
 }
 
 function renderLifeCard(life) {
-  const story = capitalizeSentences(life.story);
   const imgUrl = lifeImageUrl(life);
+  const settlementText = life.settlement ? ` · ${escapeHtml(life.settlement)}` : "";
+  const discoveryHtml = life.selfDiscovery?.length
+    ? `<div class="self-discovery-block">
+        <div class="self-discovery-title">Для исследования себя</div>
+        ${life.selfDiscovery.map(d => `<div class="self-discovery-item">◈ ${escapeHtml(d)}</div>`).join("")}
+       </div>`
+    : "";
   return `
     <article class="life-card">
       <div class="life-card-image-wrap" id="img-wrap-${life.lifeNumber}">
@@ -215,14 +231,15 @@ function renderLifeCard(life) {
       </div>
       <div class="life-card-header">
         <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
-        <span class="life-card-years">${escapeHtml(life.years)} · ${escapeHtml(String(life.lifeSpan))} лет</span>
+        <span class="life-card-years">${escapeHtml(life.years)} · ${escapeHtml(String(life.lifeSpan))} лет${settlementText}</span>
       </div>
       <div class="life-tags">
         <span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>
         <span class="life-tag">${escapeHtml(life.region)}</span>
         <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
-      <p class="life-story">${escapeHtml(story)}</p>
+      <div class="life-story">${storyToParagraphs(life.story)}</div>
+      ${discoveryHtml}
       <button class="share-life-btn" id="share-life-btn-${life.lifeNumber}">↗ Поделиться</button>
     </article>
   `;
@@ -383,7 +400,21 @@ async function openNextLife() {
 
 // ── Share modal ─────────────────────────────────────
 
-function showShareModal() { shareModal.classList.remove("hidden"); }
+function showShareModal() {
+  const life = state.lives[viewingLifeIndex];
+  if (life) {
+    const imgEl = document.getElementById("modal-life-image");
+    if (imgEl) imgEl.src = lifeImageUrl(life);
+    const nameEl = document.getElementById("modal-life-name");
+    if (nameEl) nameEl.textContent = `${life.name} · ${life.era}`;
+    const excerptEl = document.getElementById("modal-life-excerpt");
+    if (excerptEl) {
+      const sentences = life.story.split(/(?<=[.!?])\s+/);
+      excerptEl.textContent = sentences.slice(0, Math.ceil(sentences.length / 2)).join(" ");
+    }
+  }
+  shareModal.classList.remove("hidden");
+}
 function hideShareModal() { shareModal.classList.add("hidden"); }
 
 modalShareConfirm?.addEventListener("click", async () => {

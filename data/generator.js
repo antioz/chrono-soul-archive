@@ -20,6 +20,8 @@ import {
   ROLES,
   ROLES_GEN,
   ROLES_INSTR,
+  SELF_DISCOVERY,
+  SETTLEMENTS,
   TRAITS
 } from "./constants.js";
 
@@ -192,6 +194,12 @@ export function generateLife(profile, lifeNumber) {
     ({ era, eraIdx } = pickEraByYear(birthYear, seedBase + 1));
   }
 
+  const settlement = pick(SETTLEMENTS,  seedBase + 25);
+  const selfDiscoveryCount = 1 + (seedBase % 3);
+  const selfDiscovery = Array.from({ length: selfDiscoveryCount }, (_, i) =>
+    pick(SELF_DISCOVERY, seedBase + 30 + i * 13)
+  );
+
   const trait    = pick(TRAITS,         seedBase + 4);
   const family   = pick(FAMILY_LINES,   seedBase + 5);
   const event    = pick(KEY_EVENTS,     seedBase + 6);
@@ -227,6 +235,8 @@ export function generateLife(profile, lifeNumber) {
     seedBase
   );
 
+  const isFemale = /[аяАЯaA]$/.test(name.trim());
+
   return {
     lifeNumber,
     name,
@@ -237,6 +247,9 @@ export function generateLife(profile, lifeNumber) {
     region,
     role,
     story,
+    settlement,
+    selfDiscovery,
+    isFemale,
     years: `${birthYear} — ${deathYear}`
   };
 }

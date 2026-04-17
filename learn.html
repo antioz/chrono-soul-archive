@@ -81,12 +81,17 @@
     <!-- Share modal -->
     <div id="share-modal" class="modal-overlay hidden">
       <div class="modal-card">
-        <div class="modal-share-img">🔮</div>
         <h3 class="modal-title">Открыть следующую жизнь бесплатно</h3>
-        <p class="modal-text">Поделись своим результатом — твои друзья тоже смогут узнать, кем были в прошлой жизни.</p>
+        <div class="modal-life-preview">
+          <img id="modal-life-image" class="modal-life-image" src="" alt="" />
+          <div class="modal-life-info">
+            <div class="modal-life-name" id="modal-life-name"></div>
+            <p class="modal-life-excerpt" id="modal-life-excerpt"></p>
+          </div>
+        </div>
         <div class="modal-cta-box">
           <div class="modal-cta-text">Узнай свою историю →</div>
-          <div class="modal-cta-sub">previoslifebot в Telegram</div>
+          <div class="modal-cta-sub">@previoslifebot в Telegram</div>
         </div>
         <button class="btn btn-primary" id="modal-share-confirm">Поделиться и открыть</button>
         <button class="btn secondary" id="modal-share-cancel">Отмена</button>
