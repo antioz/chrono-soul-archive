@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Анализ — Chrono Soul Archive</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+
+      <!-- Form section -->
+      <section id="form-section" class="hidden">
+        <h1 class="form-title">Анализ прошлой жизни</h1>
+        <p class="form-subtitle">Узнайте, кем вы были в прошлой жизни</p>
+
+        <div class="hero-wrap hero-sm">
+          <img
+            src="./assets/images/hero.png"
+            alt=""
+            class="hero-image"
+          />
+        </div>
+
+        <form id="profile-form">
+          <div class="input-group">
+            <svg class="input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 2v2M14 2v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div class="input-content">
+              <div class="input-label">Дата рождения</div>
+              <input type="date" id="birthDate" class="input-field" required />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <svg class="input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2C7.24 2 5 4.24 5 7c0 4 5 11 5 11s5-7 5-11c0-2.76-2.24-5-5-5z" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="10" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <div class="input-content">
+              <div class="input-label">Город рождения</div>
+              <input type="text" id="city" class="input-field" required placeholder="Введите город" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <svg class="input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M3 18c0-3.87 3.13-7 7-7s7 3.13 7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div class="input-content">
+              <div class="input-label">Имя</div>
+              <input type="text" id="name" class="input-field" placeholder="Ваше имя" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-16">Узнать прошлую жизнь</button>
+        </form>
+
+        <a href="./description.html" class="btn-link" style="text-align:center; display:block;">О проекте</a>
+      </section>
+
+      <!-- Loading section -->
+      <section id="status-section" class="status-card hidden">
+        <h2 class="status-title">Идёт реконструкция</h2>
+        <p id="status-text">Сверяем архивные слои и исторические корреляции...</p>
+      </section>
+
+      <!-- Results section -->
+      <section id="results-section" class="hidden">
+        <div id="results-list"></div>
+        <div id="actions" class="actions-card"></div>
+      </section>
+
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,330 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0b0f1a;
+  color: #f1f5f9;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Hero image ───────────────────────────────────── */
+.hero-wrap {
+  margin-bottom: 28px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #1a3050;
+}
+
+.hero-wrap.hero-sm {
+  max-height: 200px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.hero-image {
+  width: 100%;
+  display: block;
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.btn:active {
+  opacity: 0.85;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.btn-link {
+  background: transparent;
+  color: #94a3b8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.btn.secondary {
+  background: #1e2d47;
+  color: #cbd5e1;
+  margin-bottom: 10px;
+}
+
+/* ── Landing page ─────────────────────────────────── */
+.landing-title {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+/* ── Form page ────────────────────────────────────── */
+.form-title {
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.form-subtitle {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 15px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.input-group {
+  background: #111827;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.input-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #3b82f6;
+}
+
+.input-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-label {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 3px;
+  text-transform: none;
+}
+
+.input-field {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f1f5f9;
+  font-size: 15px;
+  width: 100%;
+  font-family: inherit;
+}
+
+.input-field::placeholder {
+  color: #475569;
+}
+
+.input-field::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+/* ── Status / loading ─────────────────────────────── */
+.status-card {
+  background: #111827;
+  border: 1px solid #1e2d47;
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.status-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+#status-text {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* ── Life cards ───────────────────────────────────── */
+.life-card {
+  background: #111827;
+  border: 1px solid #1e2d47;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.life-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #22d3ee;
+  margin-bottom: 14px;
+}
+
+.life-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #1e2d47;
+}
+
+.life-fact-wide {
+  grid-column: 1 / -1;
+}
+
+.life-field-label {
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.life-field-value {
+  font-size: 13px;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.life-story {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+/* ── Actions ──────────────────────────────────────── */
+.actions-card {
+  background: #111827;
+  border: 1px solid #1e2d47;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Description page ─────────────────────────────── */
+.desc-title {
+  font-size: 34px;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 22px;
+  padding-top: 8px;
+}
+
+.feature-card {
+  background: #111827;
+  border: 1px solid #1e2d47;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.feature-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  background: #0d1f3c;
+  border: 1px solid #1e3a5f;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.feature-body {
+  flex: 1;
+}
+
+.feature-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.feature-text {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.55;
+}
+
+.disclaimer-card {
+  background: #111827;
+  border: 1px solid #1e2d47;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.disclaimer-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.disclaimer-text {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.disclaimer-text p + p {
+  margin-top: 10px;
+}
+
+/* ── Utility ──────────────────────────────────────── */
+.hidden {
+  display: none !important;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}

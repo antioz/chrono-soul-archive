@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440">
+  <defs>
+    <radialGradient id="bg-grad" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#0d2045"/>
+      <stop offset="100%" stop-color="#060c18"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-sm" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="400" height="440" fill="url(#bg-grad)" rx="16"/>
+
+  <!-- Tree of Life paths -->
+  <line x1="200" y1="58" x2="125" y2="118" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="200" y1="58" x2="275" y2="118" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="125" y1="118" x2="275" y2="118" stroke="#22d3ee" stroke-width="1" opacity="0.3"/>
+  <line x1="125" y1="118" x2="88" y2="208" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="275" y1="118" x2="312" y2="208" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="200" y1="58" x2="200" y2="248" stroke="#22d3ee" stroke-width="1.5" opacity="0.45"/>
+  <line x1="88" y1="208" x2="200" y2="248" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="312" y1="208" x2="200" y2="248" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="88" y1="208" x2="312" y2="208" stroke="#22d3ee" stroke-width="1" opacity="0.28"/>
+  <line x1="200" y1="248" x2="112" y2="322" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="200" y1="248" x2="288" y2="322" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="112" y1="322" x2="288" y2="322" stroke="#22d3ee" stroke-width="1" opacity="0.3"/>
+  <line x1="112" y1="322" x2="200" y2="378" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="288" y1="322" x2="200" y2="378" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+  <line x1="200" y1="378" x2="200" y2="418" stroke="#22d3ee" stroke-width="1.5" opacity="0.55"/>
+
+  <!-- Circuit decorative branches -->
+  <polyline points="88,208 44,208 44,290" stroke="#22d3ee" stroke-width="1" opacity="0.28" fill="none"/>
+  <polyline points="312,208 356,208 356,290" stroke="#22d3ee" stroke-width="1" opacity="0.28" fill="none"/>
+  <polyline points="200,58 200,18 158,18" stroke="#22d3ee" stroke-width="1" opacity="0.28" fill="none"/>
+  <polyline points="200,58 200,18 242,18" stroke="#22d3ee" stroke-width="1" opacity="0.28" fill="none"/>
+  <polyline points="125,118 68,118 68,168" stroke="#22d3ee" stroke-width="0.8" opacity="0.22" fill="none"/>
+  <polyline points="275,118 332,118 332,168" stroke="#22d3ee" stroke-width="0.8" opacity="0.22" fill="none"/>
+
+  <!-- Tick marks -->
+  <circle cx="156" cy="88" r="2" fill="#22d3ee" opacity="0.75"/>
+  <circle cx="244" cy="88" r="2" fill="#22d3ee" opacity="0.75"/>
+  <circle cx="107" cy="163" r="2" fill="#22d3ee" opacity="0.75"/>
+  <circle cx="293" cy="163" r="2" fill="#22d3ee" opacity="0.75"/>
+  <circle cx="200" cy="153" r="2" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="150" cy="285" r="2" fill="#22d3ee" opacity="0.75"/>
+  <circle cx="250" cy="285" r="2" fill="#22d3ee" opacity="0.75"/>
+  <circle cx="200" cy="313" r="2" fill="#22d3ee" opacity="0.6"/>
+
+  <!-- Keter (top) -->
+  <circle cx="200" cy="58" r="24" fill="#091a38" stroke="#22d3ee" stroke-width="2" filter="url(#glow)"/>
+  <circle cx="200" cy="58" r="16" fill="none" stroke="#22d3ee" stroke-width="0.8" opacity="0.4"/>
+  <text x="200" y="64" text-anchor="middle" fill="#22d3ee" font-size="20" font-family="serif" filter="url(#glow)">✦</text>
+
+  <!-- Chokhmah (top-left) -->
+  <circle cx="125" cy="118" r="17" fill="#091a38" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-sm)"/>
+  <text x="125" y="124" text-anchor="middle" fill="#22d3ee" font-size="14" font-family="serif">ψ</text>
+
+  <!-- Binah (top-right) -->
+  <circle cx="275" cy="118" r="17" fill="#091a38" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-sm)"/>
+  <text x="275" y="124" text-anchor="middle" fill="#22d3ee" font-size="14" font-family="serif">Ω</text>
+
+  <!-- Chesed (left) -->
+  <circle cx="88" cy="208" r="15" fill="#091a38" stroke="#f59e0b" stroke-width="1.5" filter="url(#glow-sm)"/>
+  <text x="88" y="214" text-anchor="middle" fill="#f59e0b" font-size="13" font-family="serif">♃</text>
+
+  <!-- Gevurah (right) -->
+  <circle cx="312" cy="208" r="15" fill="#091a38" stroke="#f59e0b" stroke-width="1.5" filter="url(#glow-sm)"/>
+  <text x="312" y="214" text-anchor="middle" fill="#f59e0b" font-size="13" font-family="serif">♂</text>
+
+  <!-- Tiferet (center) -->
+  <circle cx="200" cy="248" r="26" fill="#091a38" stroke="#f59e0b" stroke-width="2.5" filter="url(#glow)"/>
+  <circle cx="200" cy="248" r="18" fill="none" stroke="#f59e0b" stroke-width="0.8" opacity="0.45"/>
+  <text x="200" y="255" text-anchor="middle" fill="#f59e0b" font-size="18" font-family="serif" filter="url(#glow)">☉</text>
+
+  <!-- Netzach (lower-left) -->
+  <circle cx="112" cy="322" r="15" fill="#091a38" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-sm)"/>
+  <text x="112" y="328" text-anchor="middle" fill="#22d3ee" font-size="13" font-family="serif">♀</text>
+
+  <!-- Hod (lower-right) -->
+  <circle cx="288" cy="322" r="15" fill="#091a38" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-sm)"/>
+  <text x="288" y="328" text-anchor="middle" fill="#22d3ee" font-size="13" font-family="serif">☿</text>
+
+  <!-- Yesod (lower-center) -->
+  <circle cx="200" cy="378" r="20" fill="#091a38" stroke="#22d3ee" stroke-width="2" filter="url(#glow-sm)"/>
+  <circle cx="200" cy="378" r="13" fill="none" stroke="#22d3ee" stroke-width="0.8" opacity="0.4"/>
+  <text x="200" y="385" text-anchor="middle" fill="#22d3ee" font-size="15" font-family="serif">☽</text>
+
+  <!-- Malkuth (bottom) -->
+  <circle cx="200" cy="418" r="14" fill="#091a38" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="200" y="424" text-anchor="middle" fill="#22d3ee" font-size="12" font-family="serif">⊕</text>
+
+  <!-- Circuit endpoint nodes -->
+  <circle cx="44" cy="290" r="4" fill="#091a38" stroke="#22d3ee" stroke-width="1.2" opacity="0.7"/>
+  <circle cx="356" cy="290" r="4" fill="#091a38" stroke="#22d3ee" stroke-width="1.2" opacity="0.7"/>
+  <circle cx="158" cy="18" r="3" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="242" cy="18" r="3" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="68" cy="168" r="3" fill="#22d3ee" opacity="0.5"/>
+  <circle cx="332" cy="168" r="3" fill="#22d3ee" opacity="0.5"/>
+
+  <!-- Labels -->
+  <text x="8" y="76" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">PAST LIFE DECODER</text>
+  <text x="8" y="85" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">(AI-BASED)</text>
+  <text x="8" y="136" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">KABBALAH</text>
+  <text x="8" y="145" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">DATA STREAMS</text>
+  <text x="268" y="76" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">KABBALAH</text>
+  <text x="268" y="85" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">DATA STREAMS</text>
+  <text x="8" y="355" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">GENETIC</text>
+  <text x="8" y="364" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">DECODING</text>
+  <text x="285" y="355" fill="#22d3ee" font-size="6.5" font-family="monospace" opacity="0.65">PAST LIFE MATRIX</text>
+  <text x="8" y="432" fill="#22d3ee" font-size="6" font-family="monospace" opacity="0.45">PAST LIFE DECODER (AI-BASED)</text>
+  <text x="252" y="432" fill="#22d3ee" font-size="6" font-family="monospace" opacity="0.45">2015.814.2022</text>
+  <text x="392" y="240" fill="#22d3ee" font-size="5.5" font-family="monospace" opacity="0.4" transform="rotate(90,392,240)">NEURAL LINK · 2097</text>
+  <text x="8" y="240" fill="#22d3ee" font-size="5.5" font-family="monospace" opacity="0.4" transform="rotate(-90,8,240)">X · C · I · X · H · O</text>
+</svg>
