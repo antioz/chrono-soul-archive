@@ -517,19 +517,17 @@ function shareLifeCard() {
 }
 
 function toFirstPerson(story, name) {
+  const L = '(?<![а-яёА-ЯЁa-zA-Z])';
+  const R = '(?![а-яёА-ЯЁa-zA-Z])';
   const ne = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   let t = story
-    .replace(new RegExp(`(?<![а-яёА-ЯЁ])${ne}(?![а-яёА-ЯЁ])`, 'g'), 'я')
-    .replace(/\bОн\b/g, 'Я').replace(/\bон\b/g, 'я')
-    .replace(/\bЕго\b/g, 'Меня').replace(/\bего\b/g, 'меня')
-    .replace(/\bЕму\b/g, 'Мне').replace(/\bему\b/g, 'мне')
-    .replace(/\bНим\b/g, 'Мной').replace(/\bним\b/g, 'мной')
-    .replace(/\bИм\b/g, 'Мной').replace(/\bим\b/g, 'мной')
-    .replace(/\bЕё\b/g, 'Моей').replace(/\bеё\b/g, 'моей')
-    .replace(/\bНеё\b/g, 'Меня').replace(/\bнеё\b/g, 'меня')
-    .replace(/\bНей\b/g, 'Мне').replace(/\bней\b/g, 'мне');
-  // Заглавная Я в начале предложений
-  t = t.replace(/(^|[.!?]\s+)я\b/g, (m, p) => p + 'Я');
+    .replace(new RegExp(`${L}${ne}${R}`, 'g'), 'я')
+    .replace(new RegExp(`${L}[Оо]н${R}`, 'g'), m => m[0] === 'О' ? 'Я' : 'я')
+    .replace(new RegExp(`${L}[Еe]го${R}`, 'g'), m => m[0] === 'Е' ? 'Меня' : 'меня')
+    .replace(new RegExp(`${L}[Еe]му${R}`, 'g'), m => m[0] === 'Е' ? 'Мне' : 'мне')
+    .replace(new RegExp(`${L}[Нн]им${R}`, 'g'), m => m[0] === 'Н' ? 'Мной' : 'мной')
+    .replace(new RegExp(`${L}[Нн]им${R}`, 'g'), m => m[0] === 'Н' ? 'Мной' : 'мной');
+  t = t.replace(/(^|[.!?]\s+)я(?![а-яёА-ЯЁ])/g, (m, p) => p + 'Я');
   return t;
 }
 
@@ -550,15 +548,17 @@ function shareResult() {
       ? allSentences.slice(2, 6)
       : allSentences.slice(0, 4);
     const firstPerson = toFirstPerson(eventSentences.join(" "), life.name);
-    text = `✨ ${headline}\n\nМеня звали ${life.name}. ${firstPerson}\n\n👉 А кем ты был в прошлой жизни? ${botUrl}`;
+    text = `✨ ${headline}\n\nМеня звали ${life.name}. ${firstPerson}\n\n👉 А кем ты был в прошлой жизни?`;
   }
 
-  const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
-  if (tg?.openTelegramLink) {
-    tg.openTelegramLink(shareUrl);
-  } else if (tg?.openLink) {
-    tg.openLink(shareUrl);
-  } else {
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
+  try {
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(shareUrl);
+    } else {
+      window.open(shareUrl, "_blank", "noopener,noreferrer");
+    }
+  } catch (e) {
     window.open(shareUrl, "_blank", "noopener,noreferrer");
   }
 }
