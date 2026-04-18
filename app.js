@@ -367,11 +367,47 @@ function renderActions() {
   });
 }
 
+function renderLifeChain() {
+  const totalSlots = 5;
+  const maxLife = state.lives.length;
+  const nodes = [];
+
+  for (let slot = 0; slot < totalSlots; slot++) {
+    const lifeNum = maxLife - (totalSlots - 1 - slot);
+    const life = state.lives.find(l => l.lifeNumber === lifeNum);
+    const isViewing = life && state.lives.indexOf(life) === viewingLifeIndex;
+    if (life) {
+      nodes.push({ type: isViewing ? "active" : "past", label: String(lifeNum) });
+    } else {
+      const distFromRight = totalSlots - 1 - slot;
+      nodes.push({ type: "locked", opacity: Math.max(0.12, 0.45 - distFromRight * 0.09) });
+    }
+  }
+
+  const initials = escapeHtml((state.profile?.name || "Я")[0].toUpperCase());
+  nodes.push({ type: "user", label: initials });
+
+  const parts = nodes.map(node => {
+    if (node.type === "user")   return `<div class="lc-circle lc-user">${node.label}</div>`;
+    if (node.type === "active") return `<div class="lc-circle lc-active">${node.label}</div>`;
+    if (node.type === "past")   return `<div class="lc-circle lc-past">${node.label}</div>`;
+    return `<div class="lc-circle lc-locked" style="opacity:${node.opacity}"></div>`;
+  });
+
+  const interleaved = [];
+  for (let i = 0; i < parts.length; i++) {
+    interleaved.push(parts[i]);
+    if (i < parts.length - 1) interleaved.push(`<div class="lc-line"></div>`);
+  }
+
+  return `<div class="life-chain">${interleaved.join("")}</div>`;
+}
+
 function renderResults() {
   if (!state.profile || state.lives.length === 0) return;
   viewingLifeIndex = Math.max(0, Math.min(viewingLifeIndex, state.lives.length - 1));
 
-  resultsListEl.innerHTML = renderNavigation() + renderLifeCard(state.lives[viewingLifeIndex]);
+  resultsListEl.innerHTML = renderLifeChain() + renderNavigation() + renderLifeCard(state.lives[viewingLifeIndex]);
 
   document.getElementById(`share-life-btn-${state.lives[viewingLifeIndex]?.lifeNumber}`)
     ?.addEventListener("click", () => showShareModal());
