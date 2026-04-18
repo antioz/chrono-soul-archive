@@ -554,8 +554,8 @@ function shareResult() {
 
   const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   try {
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(shareUrl);
+    if (tg?.openLink) {
+      tg.openLink(shareUrl);
     } else {
       window.open(shareUrl, "_blank", "noopener,noreferrer");
     }
