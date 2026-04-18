@@ -1,5 +1,5 @@
 import { CALCULATION_MESSAGES, LONG_DISCLAIMER_TEXT } from "./data/constants.js";
-import { generateLife } from "./data/generator.js";
+import { generateLife, generateAbsurdLife, shouldBeAbsurd } from "./data/generator.js";
 
 const STORAGE_KEY = "chronoSoulArchiveStateV1";
 const API = "https://chrono-soul-backend-production.up.railway.app";
@@ -192,7 +192,10 @@ function currentMaxUnlockedLife() {
 function ensureLivesGenerated(targetLife) {
   if (!state.profile) return;
   while (state.lives.length < targetLife) {
-    const life = generateLife(state.profile, state.lives.length + 1);
+    const lifeNum = state.lives.length + 1;
+    const life = shouldBeAbsurd(state.profile, lifeNum, state.lives)
+      ? generateAbsurdLife(state.profile, lifeNum)
+      : generateLife(state.profile, lifeNum);
     state.lives.push(life);
     apiSaveLife(life);
   }
@@ -209,6 +212,10 @@ function lifeImageStyle(era) {
 }
 
 function lifeImageUrl(life) {
+  if (life.isAbsurd && life.absurdImage) {
+    const prompt = encodeURIComponent(`${life.absurdImage}, no text, no watermark`);
+    return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=512&nologo=true&seed=${life.lifeNumber * 77 + 13}`;
+  }
   const style = lifeImageStyle(life.era);
   const gender = life.isFemale ? "woman" : "man";
   const prompt = encodeURIComponent(`${gender}, ${life.role} in ${life.city || life.region}, ${style}, no text, no watermark, portrait`);
@@ -234,7 +241,7 @@ function renderLifeCard(life) {
        </div>`
     : "";
   return `
-    <article class="life-card">
+    <article class="life-card${life.isAbsurd ? " absurd" : ""}">
       <div class="life-card-image-wrap" id="img-wrap-${life.lifeNumber}">
         <div class="life-card-image-skeleton"></div>
         <img class="life-card-image" src="${imgUrl}" alt="${escapeHtml(life.era)}"
@@ -243,11 +250,11 @@ function renderLifeCard(life) {
       </div>
       <div class="life-card-header">
         <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
-        <span class="life-card-years">${escapeHtml(life.years)} · ${escapeHtml(String(life.lifeSpan))} лет${settlementText}</span>
+        <span class="life-card-years">${escapeHtml(life.years)}${life.lifeSpan > 0 ? ` · ${escapeHtml(String(life.lifeSpan))} лет` : ""}${settlementText}</span>
       </div>
       <div class="life-tags">
-        <span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>
-        ${life.city ? `<span class="life-tag">${escapeHtml(life.city)}</span>` : ''}
+        ${life.isAbsurd ? `<span class="life-tag life-tag-absurd">⚡ Всратая жизнь</span>` : `<span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>`}
+        ${life.city && !life.isAbsurd ? `<span class="life-tag">${escapeHtml(life.city)}</span>` : ''}
         <span class="life-tag">${escapeHtml(life.region)}</span>
         <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
@@ -521,9 +528,11 @@ function shareResult() {
     text = `✨ ${headline}\n\n${excerpt}\n\n👉 А кем ты был в прошлой жизни? ${botUrl}`;
   }
 
-  const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
+  } else if (tg?.openLink) {
+    tg.openLink(shareUrl);
   } else {
     window.open(shareUrl, "_blank", "noopener,noreferrer");
   }
