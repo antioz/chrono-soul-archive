@@ -601,16 +601,11 @@ function shareResult() {
     text = `✨ ${headline}\n\nМеня звали ${life.name}. ${firstPerson}\n\n👉 А кем ты был в прошлой жизни? узнать: @previoslifebot`;
   }
 
-  const webShareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
-  const tgShareUrl  = `tg://msg_url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
-  try {
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(tgShareUrl);
-    } else {
-      window.open(webShareUrl, "_blank", "noopener,noreferrer");
-    }
-  } catch (e) {
-    window.open(webShareUrl, "_blank", "noopener,noreferrer");
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink(shareUrl);
+  } else {
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
   }
 }
 
