@@ -618,52 +618,59 @@ body {
 }
 
 .lc-circle {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
   flex-shrink: 0;
-  letter-spacing: -0.3px;
+  gap: 1px;
+}
+
+.lc-year {
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.2px;
 }
 
 .lc-user {
-  background: #22d3ee;
-  color: #0b0f1a;
-  box-shadow: 0 0 16px rgba(34, 211, 238, 0.5);
-  font-size: 16px;
+  background: #1e3a5f;
+  color: #7dd3fc;
+  border: 1px solid #2a5a8a;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .lc-active {
-  background: #0d2d3a;
-  color: #22d3ee;
-  border: 2px solid #22d3ee;
-  box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+  background: #0d1f30;
+  color: #7dd3fc;
+  border: 2px solid #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
 }
 
 .lc-past {
-  background: #1e2d47;
-  color: #cbd5e1;
-  border: 1px solid #3b5a8a;
+  background: #0d1f30;
+  color: #7dd3fc;
+  border: 1px solid #1e3a5f;
 }
 
 .lc-locked {
-  width: 36px;
-  height: 36px;
-  background: #111827;
-  border: 1px solid #2a3f60;
-  opacity: 0.45;
+  width: 40px;
+  height: 40px;
+  background: #0d1520;
+  border: 1px solid #1e2d47;
+  opacity: 0.6;
 }
 
 .lc-line {
   flex: 1;
-  height: 2px;
+  height: 1px;
   background: #1e2d47;
-  min-width: 8px;
-  max-width: 28px;
+  min-width: 6px;
+  max-width: 24px;
 }
 
 /* ── Absurd life card ─────────────────────────────── */

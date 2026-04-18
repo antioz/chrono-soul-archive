@@ -374,22 +374,23 @@ function renderActions() {
   });
 }
 
+const LC_LOCK_SVG = `<svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="1" y="7" width="12" height="9" rx="2" fill="#4a5568"/>
+  <path d="M3.5 7V5a3.5 3.5 0 0 1 7 0v2" stroke="#4a5568" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <circle cx="7" cy="12" r="1.2" fill="#94a3b8"/>
+</svg>`;
+
 function renderLifeChain() {
   const totalLifeSlots = 5;
   const nodes = [];
 
-  // Пользователь — ЛЕВЫЙ крайний
-  const userName = (state.profile?.name || "Я").trim();
-  const initials = escapeHtml(userName[0].toUpperCase());
-  nodes.push({ type: "user", label: initials });
+  nodes.push({ type: "user", label: "Я" });
 
-  // Жизни слева направо
   for (let i = 0; i < totalLifeSlots; i++) {
     const life = state.lives[i];
     const isViewing = i === viewingLifeIndex;
     if (life) {
-      const label = escapeHtml(life.name.slice(0, 5));
-      nodes.push({ type: isViewing ? "active" : "past", label });
+      nodes.push({ type: isViewing ? "active" : "past", birthYear: life.birthYear, deathYear: life.deathYear });
     } else {
       nodes.push({ type: "locked" });
     }
@@ -397,12 +398,12 @@ function renderLifeChain() {
 
   const parts = nodes.map(node => {
     if (node.type === "user")
-      return `<div class="lc-circle lc-user">${node.label}</div>`;
-    if (node.type === "active")
-      return `<div class="lc-circle lc-active">${node.label}</div>`;
-    if (node.type === "past")
-      return `<div class="lc-circle lc-past">${node.label}</div>`;
-    return `<div class="lc-circle lc-locked"></div>`;
+      return `<div class="lc-circle lc-user">Я</div>`;
+    if (node.type === "active" || node.type === "past") {
+      const inner = `<span class="lc-year">${node.birthYear}</span><span class="lc-year">${node.deathYear}</span>`;
+      return `<div class="lc-circle ${node.type === "active" ? "lc-active" : "lc-past"}">${inner}</div>`;
+    }
+    return `<div class="lc-circle lc-locked">${LC_LOCK_SVG}</div>`;
   });
 
   const interleaved = [];
