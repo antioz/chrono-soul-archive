@@ -441,8 +441,8 @@ function showShareModal() {
     const headlineEl = document.getElementById("modal-share-headline");
     if (headlineEl) {
       headlineEl.textContent = life.lifeNumber % 2 !== 0
-        ? `в прошлой жизни я был ${life.role}`
-        : `в прошлой жизни я жил в ${life.region}`;
+        ? `В прошлой жизни я был ${life.role}`
+        : `В прошлой жизни я жил в ${life.region}`;
     }
     const excerptEl = document.getElementById("modal-life-excerpt");
     if (excerptEl) {
