@@ -547,8 +547,9 @@ const ABSURD_BEINGS = [
 ];
 
 export function shouldBeAbsurd(profile, lifeNumber, existingLives) {
-  if (lifeNumber < 2 || lifeNumber > 4) return false;
+  if (lifeNumber < 1 || lifeNumber > 4) return false;
   const seed = hashText(`${profile.birthDate}|${profile.name || "anon"}|absurd`);
+  if (lifeNumber === 1) return seed % 10 < 4;
   if (lifeNumber === 2) return seed % 10 < 4;
   if (lifeNumber === 3) {
     if (existingLives[1]?.isAbsurd) return false;
