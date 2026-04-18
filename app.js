@@ -512,6 +512,23 @@ function shareLifeCard() {
   shareResult();
 }
 
+function toFirstPerson(story, name) {
+  const ne = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  let t = story
+    .replace(new RegExp(`(?<![а-яёА-ЯЁ])${ne}(?![а-яёА-ЯЁ])`, 'g'), 'я')
+    .replace(/\bОн\b/g, 'Я').replace(/\bон\b/g, 'я')
+    .replace(/\bЕго\b/g, 'Меня').replace(/\bего\b/g, 'меня')
+    .replace(/\bЕму\b/g, 'Мне').replace(/\bему\b/g, 'мне')
+    .replace(/\bНим\b/g, 'Мной').replace(/\bним\b/g, 'мной')
+    .replace(/\bИм\b/g, 'Мной').replace(/\bим\b/g, 'мной')
+    .replace(/\bЕё\b/g, 'Моей').replace(/\bеё\b/g, 'моей')
+    .replace(/\bНеё\b/g, 'Меня').replace(/\bнеё\b/g, 'меня')
+    .replace(/\bНей\b/g, 'Мне').replace(/\bней\b/g, 'мне');
+  // Заглавная Я в начале предложений
+  t = t.replace(/(^|[.!?]\s+)я\b/g, (m, p) => p + 'Я');
+  return t;
+}
+
 function shareResult() {
   const life = state.lives[viewingLifeIndex];
   const ref = tgUserId ? `?start=ref_${tgUserId}` : "";
@@ -523,12 +540,16 @@ function shareResult() {
     const headline = life.lifeNumber % 2 !== 0
       ? `В прошлой жизни я был ${life.role}`
       : `В прошлой жизни я жил в ${life.region}`;
-    const sentences = life.story.split(/(?<=[.!?])\s+/);
-    const excerpt = sentences.slice(0, 4).join(" ");
-    text = `✨ ${headline}\n\n${excerpt}\n\n👉 А кем ты был в прошлой жизни? ${botUrl}`;
+    // Берём предложения 3–6 — там обычно ключевое событие
+    const allSentences = life.story.split(/(?<=[.!?])\s+/);
+    const eventSentences = allSentences.length > 4
+      ? allSentences.slice(2, 6)
+      : allSentences.slice(0, 4);
+    const firstPerson = toFirstPerson(eventSentences.join(" "), life.name);
+    text = `✨ ${headline}\n\nМеня звали ${life.name}. ${firstPerson}\n\n👉 А кем ты был в прошлой жизни? ${botUrl}`;
   }
 
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
+  const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
   } else if (tg?.openLink) {
