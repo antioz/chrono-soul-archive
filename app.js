@@ -243,7 +243,7 @@ function renderLifeCard(life) {
   return `
     <article class="life-card${life.isAbsurd ? " absurd" : ""}">
       <div class="life-card-image-wrap" id="img-wrap-${life.lifeNumber}">
-        <div class="life-card-image-skeleton"></div>
+        <div class="life-card-image-skeleton" id="skel-${life.lifeNumber}"></div>
         <img class="life-card-image" src="${imgUrl}" alt="${escapeHtml(life.era)}"
           onload="this.classList.add('loaded');this.previousElementSibling.style.display='none'"
           onerror="this.parentElement.style.display='none'" />
@@ -420,6 +420,15 @@ function renderResults() {
   viewingLifeIndex = Math.max(0, Math.min(viewingLifeIndex, state.lives.length - 1));
 
   resultsListEl.innerHTML = renderLifeChain() + renderNavigation() + renderLifeCard(state.lives[viewingLifeIndex]);
+
+  // Если картинка не загрузилась за 10 сек — скрываем скелетон
+  const lifeNum = state.lives[viewingLifeIndex]?.lifeNumber;
+  if (lifeNum) {
+    setTimeout(() => {
+      const skel = document.getElementById(`skel-${lifeNum}`);
+      if (skel) skel.style.display = "none";
+    }, 10000);
+  }
 
   document.getElementById(`share-life-btn-${state.lives[viewingLifeIndex]?.lifeNumber}`)
     ?.addEventListener("click", () => showShareModal());
