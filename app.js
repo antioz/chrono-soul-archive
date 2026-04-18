@@ -211,6 +211,46 @@ function lifeImageStyle(era) {
   return "medieval illuminated manuscript style portrait, tempera painting, flat perspective, gold accents";
 }
 
+function roleIconSvg(role) {
+  const r = (role || "").toLowerCase();
+  const icons = [
+    [["лекар","целитель","знахар","аптекар","акушер","медик"],
+     `<path d="M16 6h-4V2h-4v4H4v4h4v4h4v-4h4z" fill="currentColor"/>`],
+    [["воен","оружей","картограф","рыцар","солдат","страж"],
+     `<path d="M12 2L8 8H4l3 8 5-3 5 3 3-8h-4z" fill="currentColor"/>`],
+    [["монах","писар","перепис","проповед","церков","монастыр","священ"],
+     `<path d="M12 2v20M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>`],
+    [["купец","торгов","меняла","посредник","таможен"],
+     `<path d="M6 2h12l2 6H4zM4 8v12a2 2 0 002 2h12a2 2 0 002-2V8" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="12" cy="15" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>`],
+    [["корабел","морск","портов","лоцман","навигатор","речной"],
+     `<path d="M3 17l9-14 9 14H3z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 3v14M3 17h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`],
+    [["кузнец","рудокоп","горн","плотник","ремеслен","строител"],
+     `<path d="M15 3l-8 8 2 2 8-8-2-2zM3 21l4-4-2-2-4 4 2 2z" fill="currentColor"/><path d="M9 15l-4 4" stroke="currentColor" stroke-width="2"/>`],
+    [["музыкант","органист","певец","рассказчик"],
+     `<path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>`],
+    [["повар","садовник","красильщик","ткач"],
+     `<path d="M12 2a7 7 0 00-7 7c0 3 2 5 4 6v5h6v-5c2-1 4-3 4-6a7 7 0 00-7-7z" stroke="currentColor" stroke-width="1.5" fill="none"/>`],
+    [["учитель","наставник","переводчик","архив","книж","хранитель","нотариус","судебн","глашатай"],
+     `<path d="M4 4h16v12H4zM8 20h8M12 16v4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>`],
+    [["гусь","бомж","инопланетян","опарыш","червь","куст","смородин"],
+     `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>`],
+  ];
+  for (const [keywords, path] of icons) {
+    if (keywords.some(k => r.includes(k))) return path;
+  }
+  // default: hourglass
+  return `<path d="M5 2h14M5 22h14M7 2v5l5 5-5 5v3M17 2v5l-5 5 5 5v3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+function lifeImagePlaceholder(life) {
+  const icon = roleIconSvg(life.role);
+  return `<div class="life-img-placeholder">
+    <svg viewBox="0 0 24 24" class="life-img-placeholder-icon" xmlns="http://www.w3.org/2000/svg">${icon}</svg>
+    <div class="life-img-placeholder-role">${escapeHtml(life.role)}</div>
+    <div class="life-img-placeholder-era">${escapeHtml(life.era)}</div>
+  </div>`;
+}
+
 function lifeImageUrl(life) {
   if (life.isAbsurd && life.absurdImage) {
     const prompt = encodeURIComponent(`${life.absurdImage}, no text, no watermark`);
@@ -246,7 +286,7 @@ function renderLifeCard(life) {
         <div class="life-card-image-skeleton" id="skel-${life.lifeNumber}"></div>
         <img class="life-card-image" src="${imgUrl}" alt="${escapeHtml(life.era)}"
           onload="this.classList.add('loaded');this.previousElementSibling.style.display='none'"
-          onerror="this.parentElement.style.display='none'" />
+          onerror="window._imgErr(this,${life.lifeNumber})" />
       </div>
       <div class="life-card-header">
         <h3 class="life-card-title">${escapeHtml(life.name)}</h3>
@@ -573,6 +613,20 @@ function shareResult() {
     window.open(webShareUrl, "_blank", "noopener,noreferrer");
   }
 }
+
+// ── Image error handler ─────────────────────────────
+
+window._imgErr = function(imgEl, lifeNumber) {
+  const wrap = document.getElementById(`img-wrap-${lifeNumber}`);
+  if (!wrap) return;
+  const skel = document.getElementById(`skel-${lifeNumber}`);
+  if (skel) skel.style.display = "none";
+  imgEl.style.display = "none";
+  const life = state.lives.find(l => l.lifeNumber === lifeNumber);
+  if (life && !wrap.querySelector(".life-img-placeholder")) {
+    wrap.insertAdjacentHTML("beforeend", lifeImagePlaceholder(life));
+  }
+};
 
 // ── Init ────────────────────────────────────────────
 
