@@ -253,7 +253,7 @@ function renderLifeCard(life) {
         <span class="life-card-years">${escapeHtml(life.years)}${life.lifeSpan > 0 ? ` · ${escapeHtml(String(life.lifeSpan))} лет` : ""}${settlementText}</span>
       </div>
       <div class="life-tags">
-        ${life.isAbsurd ? `<span class="life-tag life-tag-absurd">⚡ Всратая жизнь</span>` : `<span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>`}
+        <span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>
         ${life.city && !life.isAbsurd ? `<span class="life-tag">${escapeHtml(life.city)}</span>` : ''}
         <span class="life-tag">${escapeHtml(life.region)}</span>
         <span class="life-tag">${escapeHtml(life.role)}</span>
