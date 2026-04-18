@@ -226,7 +226,7 @@ function storyToParagraphs(story) {
 
 function renderLifeCard(life) {
   const imgUrl = lifeImageUrl(life);
-  const settlementText = life.settlement ? ` · ${escapeHtml(life.settlement)}` : "";
+  const settlementText = life.city ? ` · ${escapeHtml(life.city)}` : "";
   const discoveryHtml = life.selfDiscovery?.length
     ? `<div class="self-discovery-block">
         <div class="self-discovery-title">Для исследования себя</div>
@@ -252,6 +252,15 @@ function renderLifeCard(life) {
         <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
       <div class="life-story">${storyToParagraphs(life.story)}</div>
+      ${life.psychType ? `<div class="self-discovery-block">
+        <div class="self-discovery-title">Психологический тип</div>
+        <div class="self-discovery-item" style="font-weight:600;color:#f1f5f9">${escapeHtml(life.psychType.type)}</div>
+        <div class="self-discovery-item">${escapeHtml(life.psychType.description)}</div>
+      </div>` : ""}
+      ${life.achievementDisplay ? `<div class="self-discovery-block">
+        <div class="self-discovery-title">Главное достижение</div>
+        <div class="self-discovery-item">${escapeHtml(life.achievementDisplay)}</div>
+      </div>` : ""}
       ${discoveryHtml}
       <button class="share-life-btn" id="share-life-btn-${life.lifeNumber}">↗ Поделиться</button>
     </article>
@@ -284,11 +293,11 @@ function renderActions() {
     html += `<button class="btn btn-primary" id="open-next">Открыть жизнь №${nextLife}</button>`;
   } else if (nextLife === 3 && !state.shareUnlocked) {
     const active = state.sharedOnce;
-    html += `<button class="btn btn-primary${active ? "" : " btn-disabled"}" id="share-btn">Открыть бесплатно — поделиться</button>`;
+    html += `<button class="btn btn-primary${active ? "" : " btn-disabled"}" id="share-btn">Поделиться и открыть</button>`;
   } else if (nextLife === 4 && !state.channelUnlocked) {
-    html += `<button class="btn btn-primary" id="channel-btn">Открыть бесплатно — подписаться на канал</button>`;
+    html += `<button class="btn btn-primary" id="channel-btn">Подписаться и открыть</button>`;
   } else {
-    html += `<button class="btn btn-primary" id="pay-stars-btn">Открыть жизнь №${nextLife} за Stars ✦</button>`;
+    html += `<button class="btn btn-primary" id="pay-stars-btn">Открыть за 10 Stars ✦</button>`;
   }
 
   html += `</div>`;
@@ -473,10 +482,10 @@ function shareResult() {
       : `В прошлой жизни я жил в ${life.region}`;
     const sentences = life.story.split(/(?<=[.!?])\s+/);
     const excerpt = sentences.slice(0, 4).join(" ");
-    text = `✨ ${headline}\n\n${excerpt}\n\n👉 А кем ты был в прошлой жизни?`;
+    text = `✨ ${headline}\n\n${excerpt}\n\n👉 А кем ты был в прошлой жизни? ${botUrl}`;
   }
 
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
+  const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
   } else {
