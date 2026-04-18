@@ -549,10 +549,10 @@ function shareResult() {
       ? allSentences.slice(2, 6)
       : allSentences.slice(0, 4);
     const firstPerson = toFirstPerson(eventSentences.join(" "), life.name);
-    text = `✨ ${headline}\n\nМеня звали ${life.name}. ${firstPerson}\n\n👉 А кем ты был в прошлой жизни?`;
+    text = `✨ ${headline}\n\nМеня звали ${life.name}. ${firstPerson}\n\n👉 А кем ты был в прошлой жизни? узнать: @previoslifebot`;
   }
 
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
+  const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   try {
     if (tg?.openTelegramLink) {
       tg.openTelegramLink(shareUrl);
