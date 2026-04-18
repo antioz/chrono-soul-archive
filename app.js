@@ -375,30 +375,34 @@ function renderActions() {
 }
 
 function renderLifeChain() {
-  const totalSlots = 5;
-  const maxLife = state.lives.length;
+  const totalLifeSlots = 5;
   const nodes = [];
 
-  for (let slot = 0; slot < totalSlots; slot++) {
-    const lifeNum = maxLife - (totalSlots - 1 - slot);
-    const life = state.lives.find(l => l.lifeNumber === lifeNum);
-    const isViewing = life && state.lives.indexOf(life) === viewingLifeIndex;
+  // Пользователь — ЛЕВЫЙ крайний
+  const userName = (state.profile?.name || "Я").trim();
+  const initials = escapeHtml(userName[0].toUpperCase());
+  nodes.push({ type: "user", label: initials });
+
+  // Жизни слева направо
+  for (let i = 0; i < totalLifeSlots; i++) {
+    const life = state.lives[i];
+    const isViewing = i === viewingLifeIndex;
     if (life) {
-      nodes.push({ type: isViewing ? "active" : "past", label: String(lifeNum) });
+      const label = escapeHtml(life.name.slice(0, 5));
+      nodes.push({ type: isViewing ? "active" : "past", label });
     } else {
-      const distFromRight = totalSlots - 1 - slot;
-      nodes.push({ type: "locked", opacity: Math.max(0.12, 0.45 - distFromRight * 0.09) });
+      nodes.push({ type: "locked" });
     }
   }
 
-  const initials = escapeHtml((state.profile?.name || "Я")[0].toUpperCase());
-  nodes.push({ type: "user", label: initials });
-
   const parts = nodes.map(node => {
-    if (node.type === "user")   return `<div class="lc-circle lc-user">${node.label}</div>`;
-    if (node.type === "active") return `<div class="lc-circle lc-active">${node.label}</div>`;
-    if (node.type === "past")   return `<div class="lc-circle lc-past">${node.label}</div>`;
-    return `<div class="lc-circle lc-locked" style="opacity:${node.opacity}"></div>`;
+    if (node.type === "user")
+      return `<div class="lc-circle lc-user">${node.label}</div>`;
+    if (node.type === "active")
+      return `<div class="lc-circle lc-active">${node.label}</div>`;
+    if (node.type === "past")
+      return `<div class="lc-circle lc-past">${node.label}</div>`;
+    return `<div class="lc-circle lc-locked"></div>`;
   });
 
   const interleaved = [];
