@@ -211,7 +211,7 @@ function lifeImageStyle(era) {
 function lifeImageUrl(life) {
   const style = lifeImageStyle(life.era);
   const gender = life.isFemale ? "woman" : "man";
-  const prompt = encodeURIComponent(`${gender}, ${life.role} in ${life.region}, ${style}, no text, no watermark, portrait`);
+  const prompt = encodeURIComponent(`${gender}, ${life.role} in ${life.city || life.region}, ${style}, no text, no watermark, portrait`);
   return `https://image.pollinations.ai/prompt/${prompt}?width=512&height=640&nologo=true&seed=${life.lifeNumber * 31 + 7}`;
 }
 
@@ -247,6 +247,7 @@ function renderLifeCard(life) {
       </div>
       <div class="life-tags">
         <span class="life-tag life-tag-era">${escapeHtml(life.era)}</span>
+        ${life.city ? `<span class="life-tag">${escapeHtml(life.city)}</span>` : ''}
         <span class="life-tag">${escapeHtml(life.region)}</span>
         <span class="life-tag">${escapeHtml(life.role)}</span>
       </div>
@@ -404,8 +405,8 @@ async function openNextLife() {
   const pickFunny = (i) => funnySteps[(nextLifeNumber * 7 + i) % funnySteps.length];
 
   const steps = nextLifeNumber >= 3
-    ? [pickFunny(0), pickFunny(1), pickFunny(2), getCalculationMessage(nextLifeNumber)]
-    : ["Анализируем дату рождения...", "Сканируем архивы эпох...", "Находим точку пересечения судеб...", getCalculationMessage(nextLifeNumber)];
+    ? [pickFunny(0), pickFunny(1), pickFunny(2), pickFunny(3), pickFunny(4), pickFunny(5), getCalculationMessage(nextLifeNumber), getCalculationMessage(nextLifeNumber + 1)]
+    : ["Анализируем дату рождения...", "Сканируем архивы эпох...", "Определяем временной пласт...", "Находим точку пересечения судеб...", "Восстанавливаем биографический контур...", "Верифицируем хронологические маркеры...", getCalculationMessage(nextLifeNumber), getCalculationMessage(nextLifeNumber + 1)];
   for (const step of steps) {
     statusTextEl.classList.remove("status-text-fade");
     void statusTextEl.offsetWidth;
@@ -428,12 +429,16 @@ function showShareModal() {
   if (life) {
     const imgEl = document.getElementById("modal-life-image");
     if (imgEl) imgEl.src = lifeImageUrl(life);
-    const nameEl = document.getElementById("modal-life-name");
-    if (nameEl) nameEl.textContent = `${life.name} · ${life.era}`;
+    const headlineEl = document.getElementById("modal-share-headline");
+    if (headlineEl) {
+      headlineEl.textContent = life.lifeNumber % 2 !== 0
+        ? `в прошлой жизни я был ${life.role}`
+        : `в прошлой жизни я жил в ${life.region}`;
+    }
     const excerptEl = document.getElementById("modal-life-excerpt");
     if (excerptEl) {
       const sentences = life.story.split(/(?<=[.!?])\s+/);
-      excerptEl.textContent = sentences.slice(0, Math.ceil(sentences.length / 2)).join(" ");
+      excerptEl.textContent = sentences.slice(0, 4).join(" ");
     }
   }
   shareModal.classList.remove("hidden");
@@ -460,17 +465,18 @@ function shareResult() {
   const ref = tgUserId ? `?start=ref_${tgUserId}` : "";
   const botUrl = `https://t.me/previoslifebot${ref}`;
 
-  let text = "Узнал, кем был в прошлой жизни. Попробуй и ты 👇\n" + botUrl;
-  let shareMediaUrl = botUrl;
+  let text = "Узнал, кем был в прошлой жизни. Попробуй и ты 👇";
 
   if (life) {
+    const headline = life.lifeNumber % 2 !== 0
+      ? `В прошлой жизни я был ${life.role}`
+      : `В прошлой жизни я жил в ${life.region}`;
     const sentences = life.story.split(/(?<=[.!?])\s+/);
-    const excerpt = sentences.slice(0, 2).join(" ");
-    text = `${life.name} · ${life.era}\n\n${excerpt}\n\n👉 ${botUrl}`;
-    shareMediaUrl = lifeImageUrl(life);
+    const excerpt = sentences.slice(0, 4).join(" ");
+    text = `✨ ${headline}\n\n${excerpt}\n\n👉 А кем ты был в прошлой жизни?`;
   }
 
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareMediaUrl)}&text=${encodeURIComponent(text)}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
   } else {
